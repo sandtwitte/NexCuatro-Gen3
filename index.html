@@ -595,7 +595,7 @@ body.g3-tournament-active .features-panel{display:none!important}
   <details id="featuresHelp">
     <summary>Description of current features</summary>
     <div class="features-content"><h3>Generation 2 — Mixer and Zoned Modes</h3><p><strong>Mixer Mode</strong> retains Generation 1 rotation methods, timers, fixed partners, fair sit-outs, and results. Player names are alphabetical.</p><p><strong>Zoned Mode</strong> lets the organizer assign each of eight courts to one of five rating groups: Developing (2.0–2.99), Intermediate 1 (3.0–3.49), Intermediate 2 (3.5–3.99), Advanced (4.0–4.49), and Elite (4.5+). Each zone has its own Next Cuatro! button and round counter, with no timer. Entered ratings determine zones; Adaptive Rating is disabled during Zoned play and becomes available again in Mixer Mode. Results and session statistics are retained. Select a different session mode, then explicitly apply it after games finish.</p>
-      <p class="feature-version">NextCuatro · Generation 3 · v1.2 Alpha · Flexible. Smart. Adaptive.</p>
+      <p class="feature-version">NextCuatro · Generation 3 · v1.3 Alpha · Flexible. Smart. Adaptive.</p>
       <p><strong>Timer:</strong> Available in Mixer Mode only. Zoned Mode operates without timers, allowing each skill group to advance independently.</p>
       <p><strong>Reset Session Fairness:</strong> After confirmation, resets everything in the Session Fairness table to zero while preserving the player roster, skill selections, fixed teams, mode, and court setup.</p>
       <p><strong>Session fairness:</strong> In Zoned Mode, player names are grouped by their current rating zone and alphabetized within each group. Played, Sat Out, Wins/Losses, and partner history are preserved across Mixer/Zoned changes and Restore. Leave requires confirmation.</p>
@@ -639,7 +639,7 @@ body.g3-tournament-active .features-panel{display:none!important}
     </div>
   </details>
 </section>
-<div class="footer">NextCuatro · Generation 3 · v1.2 Alpha · © 2026 Todd Witte</div>
+<div class="footer">NextCuatro · Generation 3 · v1.3 Alpha · © 2026 Todd Witte</div>
 
 <div id="pairFairnessModal" class="nc-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pairFairnessTitle">
   <div class="nc-modal">
@@ -1602,7 +1602,8 @@ body.g3-tournament-active .features-panel{display:none!important}
   $('cancelMode').onclick=()=>{state.pendingMode=null;save();render()};
   $('applyMode').onclick=()=>{
     if(!state.pendingMode)return;
-    if(!confirm('Confirm all current games have finished. Apply the mode change now?'))return;
+    if(!window.__g3ModeApproved && !confirm('Confirm all current games have finished. Apply the mode change now?'))return;
+    window.__g3ModeApproved=false;
     if(state.sessionMode==='zoned'){
       for(const zr of Object.values(state.zoneRounds||{})){if(zr.currentRound){const original=state.currentRound;state.currentRound=zr.currentRound;finalizeAdaptiveResults();state.currentRound=original}}
       for(const p of state.players){if(p.pendingZone!==undefined)moveToZone(p,p.pendingZone)}
@@ -1668,11 +1669,40 @@ function note(s,bad=false){$('g3Status').textContent=s;$('g3Status').className='
 function stopTimer(){if(timer)clearInterval(timer);timer=null;$('g3TimerToggle').textContent='Start timer';}
 function timerRender(){const m=Math.floor(timerLeft/60),s=timerLeft%60;$('g3TimerDisplay').textContent=timerLeft>0?`${m}:${String(s).padStart(2,'0')}`:'END OF TIMED GAME';}
 function resetTimer(){stopTimer();timerLeft=t()?.format==='timed'?t().gameValue*60:0;timerRender();}
-function switchMode(mode){const show=mode==='tournament';document.body.classList.toggle('g3-tournament-active',show);$('g3Tournament').classList.toggle('active',show);
- document.querySelector('.g2-controls').hidden=show;document.querySelector('.app > .grid').hidden=show;
- document.querySelector('.features-panel').hidden=show;stopTimer();if(show){render();return;}
- if($('sessionMode').value!==mode){$('sessionMode').value=mode;$('sessionMode').dispatchEvent(new Event('change'));}
+// G3 v1.3: route the single Play Mode selector through the original G2
+// pending-mode conversion. The G2 controls are hidden, so G3 must approve
+// and apply the change explicitly; otherwise the app stays in Mixer.
+function switchMode(mode){
+ const select=$('g3PlayType');
+ const oldMode=document.body.classList.contains('g3-tournament-active')?'tournament':$('sessionMode').value;
+ if(mode===oldMode)return;
+ const activeTournament=t();
+ const changingTournament=(mode==='tournament'||oldMode==='tournament');
+ const warning=changingTournament
+  ? 'Switch to '+(mode==='tournament'?'Tournament Play':mode==='zoned'?'Zoned Play':'Mixer Play')+'?\n\nYour existing tournament is saved separately. Finish any current games and export important tournament data before changing modes.'
+  : 'Switch from '+(oldMode==='zoned'?'Zoned Play':'Mixer Play')+' to '+(mode==='zoned'?'Zoned Play':'Mixer Play')+'?\n\nConfirm that current games have finished. Player records will be kept, but the court assignments will be converted for the new mode.';
+ if(!confirm(warning)){select.value=oldMode;return;}
+ if(mode!=='tournament' && $('sessionMode').value!==mode){
+   $('sessionMode').value=mode;
+   $('sessionMode').dispatchEvent(new Event('change'));
+   window.__g3ModeApproved=true;
+   $('applyMode').click();
+   window.__g3ModeApproved=false;
+   if($('sessionMode').value!==mode || document.getElementById('modePending').hidden===false){
+     // Defensive rollback if the underlying conversion did not complete.
+     $('cancelMode').click();select.value=oldMode;return;
+   }
+ }
+ const show=mode==='tournament';
+ document.body.classList.toggle('g3-tournament-active',show);
+ $('g3Tournament').classList.toggle('active',show);
+ document.querySelector('.g2-controls').hidden=show;
+ document.querySelector('.app > .grid').hidden=show;
+ document.querySelector('.features-panel').hidden=show;
+ stopTimer();
+ if(show)render();
 }
+$('g3PlayType').value=$('sessionMode').value;
 $('g3PlayType').onchange=e=>switchMode(e.target.value);
 for(let i=1;i<=16;i++)$('g3Nights').add(new Option(`${i} session${i>1?'s':''}`,i));$('g3Nights').value='12';
 for(let i=1;i<=20;i++)$('g3Rounds').add(new Option(`${i} game${i>1?'s':''}`,i));$('g3Rounds').value='6';
