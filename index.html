@@ -415,8 +415,7 @@ input,select,button{max-width:100%}
    Keep all Mixer and Zoned controls unchanged and fully available in their modes. */
 body.g3-tournament-active .topbar .toolbar{display:none!important}
 body.g3-tournament-active .g2-controls,
-body.g3-tournament-active .app > .grid,
-body.g3-tournament-active .features-panel{display:none!important}
+body.g3-tournament-active .app > .grid{display:none!important}
 
 /* G3 v1.2 — single visible mode selector and integrated timed-game controls */
 .g3-switch{justify-content:flex-start}
@@ -594,12 +593,26 @@ body.g3-tournament-active .features-panel{display:none!important}
 <section class="features-panel" aria-label="NextCuatro features and instructions">
   <details id="featuresHelp">
     <summary>Description of current features</summary>
-    <div class="features-content"><h3>Generation 2 — Mixer and Zoned Modes</h3><p><strong>Mixer Mode</strong> retains Generation 1 rotation methods, timers, fixed partners, fair sit-outs, and results. Player names are alphabetical.</p><p><strong>Zoned Mode</strong> lets the organizer assign each of eight courts to one of five rating groups: Developing (2.0–2.99), Intermediate 1 (3.0–3.49), Intermediate 2 (3.5–3.99), Advanced (4.0–4.49), and Elite (4.5+). Each zone has its own Next Cuatro! button and round counter, with no timer. Entered ratings determine zones; Adaptive Rating is disabled during Zoned play and becomes available again in Mixer Mode. Results and session statistics are retained. Select a different session mode, then explicitly apply it after games finish.</p>
-      <p class="feature-version">NextCuatro · Generation 3 · v1.3 Alpha · Flexible. Smart. Adaptive.</p>
-      <p><strong>Timer:</strong> Available in Mixer Mode only. Zoned Mode operates without timers, allowing each skill group to advance independently.</p>
-      <p><strong>Reset Session Fairness:</strong> After confirmation, resets everything in the Session Fairness table to zero while preserving the player roster, skill selections, fixed teams, mode, and court setup.</p>
-      <p><strong>Session fairness:</strong> In Zoned Mode, player names are grouped by their current rating zone and alphabetized within each group. Played, Sat Out, Wins/Losses, and partner history are preserved across Mixer/Zoned changes and Restore. Leave requires confirmation.</p>
-      <p><strong>NextCuatro</strong> organizes rotating pickleball games with flexibility and fairness. Players can arrive, take breaks, leave, pair or unpair, rotate by skill level, and track wins and losses—all while the app adapts to changing attendance. In Mixer Mode set the number of courts; in Zoned Mode assign individual courts to zones, then choose a rotation mode, add players (with optional skill ratings), and press <strong>Next Cuatro!</strong> to generate the next round.</p>
+    <div class="features-content">
+      <h3>NextCuatro — Generation 3 · v1.3.1 Alpha</h3>
+      <p>NextCuatro supports three play modes: <strong>Mixer Play</strong>, <strong>Zoned Play</strong>, and the new <strong>Tournament Play</strong>. Choose a mode using the single <strong>Play Mode</strong> selector. Confirm the warning before switching; Mixer/Zoned player records are retained, and tournaments are stored separately.</p>
+      <h3>Mixer Play</h3>
+      <p>Flexible drop-in play for changing attendance, with up to eight courts and rosters of up to 96 tested players. Choose <strong>Smart Random</strong>, <strong>Similar Skill</strong>, or <strong>Balanced Teams</strong>. Mixer includes optional skill ratings, fixed partners, sit-outs, departures and returns, fairness tracking, wins/losses, optional adaptive ratings, and a 10-, 12-, or 15-minute timer.</p>
+      <h3>Zoned Play</h3>
+      <p>Assign courts to five skill groups: Developing (2.0–2.99), Intermediate 1 (3.0–3.49), Intermediate 2 (3.5–3.99), Advanced (4.0–4.49), and Elite (4.5+). Each zone has independent game advancement and fairness rotation. The organizer assigns available courts to zones. Adaptive ratings and the shared game timer are disabled in Zoned Play.</p>
+      <h3>Tournament Play — new in Generation 3</h3>
+      <ul>
+        <li>Create and save a named tournament with <strong>Number of Sessions</strong> and <strong>Games per Session</strong>; the app supports up to 16 sessions.</li>
+        <li>Use a fixed roster of 4–32 registered players, in multiples of four, across up to eight courts. Every player plays each game rotation; individual Sit Out and Leave controls are not used.</li>
+        <li>Register individual players, fixed pairs, or a mixture. Fixed partners stay together; solo entrants rotate partners. Tournament matchups do not depend on skill ratings.</li>
+        <li>Use <strong>Timed games</strong> (10, 12, or 15 minutes) with a visible Start/Pause/Reset timer, or <strong>Modified rally scoring</strong> with a configurable score target. The timer does not automatically advance games.</li>
+        <li>Enter actual scores for both teams on <strong>every court</strong> before advancing. Track wins, losses, point differential, completed games, and both session and cumulative standings.</li>
+        <li>Choose the primary ranking method: <strong>Most wins</strong> (point-differential tiebreak) or <strong>Point differential</strong> (wins tiebreak). Fixed partners share the same finishing position.</li>
+        <li>Substitutes can play in a registered player's place while the results remain credited to that registrant.</li>
+        <li><strong>Export Tournament</strong> and <strong>Import Tournament</strong> use an Excel-compatible .xlsx workbook. These files can also be stored in Google Drive and opened in Google Sheets; this is not live Google Sheets synchronization.</li>
+      </ul>
+      <p class="feature-version">NextCuatro · Generation 3 · v1.3.1 Alpha · Flexible. Smart. Adaptive.</p>
+      <h3>Mixer and Zoned details</h3>
       <h3>Players &amp; availability</h3>
       <ul>
         <li>Add players before or during a session; new players receive priority in the next rotation when space permits, without catching up on earlier sit-outs.</li>
@@ -639,7 +652,7 @@ body.g3-tournament-active .features-panel{display:none!important}
     </div>
   </details>
 </section>
-<div class="footer">NextCuatro · Generation 3 · v1.3 Alpha · © 2026 Todd Witte</div>
+<div class="footer">NextCuatro · Generation 3 · v1.3.1 Alpha · © 2026 Todd Witte</div>
 
 <div id="pairFairnessModal" class="nc-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pairFairnessTitle">
   <div class="nc-modal">
@@ -1698,7 +1711,8 @@ function switchMode(mode){
  $('g3Tournament').classList.toggle('active',show);
  document.querySelector('.g2-controls').hidden=show;
  document.querySelector('.app > .grid').hidden=show;
- document.querySelector('.features-panel').hidden=show;
+ // Keep the Generation 3 feature guide available in every play mode.
+ document.querySelector('.features-panel').hidden=false;
  stopTimer();
  if(show)render();
 }
