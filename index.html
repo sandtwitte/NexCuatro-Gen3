@@ -418,6 +418,11 @@ body.g3-tournament-active .g2-controls,
 body.g3-tournament-active .app > .grid,
 body.g3-tournament-active .features-panel{display:none!important}
 
+/* G3 v1.2 — single visible mode selector and integrated timed-game controls */
+.g3-switch{justify-content:flex-start}
+.g3-switch strong{font-size:18px;color:#123b5d}
+.g3-timer{background:#f1f7ea;border:1px solid #c9dfab;border-radius:12px;padding:12px;align-items:center}
+.g3-timer .g3-pill{font-size:26px;font-variant-numeric:tabular-nums;min-width:105px;text-align:center}
 /* Generation 3 Tournament module — independent of G2 session storage */
 .g3-switch{max-width:1100px;margin:0 auto 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .g3-switch select{max-width:230px}.g3-wrap{max-width:1100px;margin:0 auto 18px;display:none}
@@ -452,29 +457,29 @@ body.g3-tournament-active .features-panel{display:none!important}
     </div>
   </div>
 
-  <section class="g3-switch card panel"><strong>Generation 3 · Play type</strong><select id="g3PlayType" aria-label="Play type"><option value="mixer">Mixer Play</option><option value="zoned">Zoned Play</option><option value="tournament">Tournament Play</option></select><span class="g3-note">Tournament data is stored separately from Mixer and Zoned sessions.</span></section>
+  <section class="g3-switch card panel"><strong>Play Mode</strong><select id="g3PlayType" aria-label="Play type"><option value="mixer">Mixer Play</option><option value="zoned">Zoned Play</option><option value="tournament">Tournament Play</option></select></section>
 <section id="g3Tournament" class="g3-wrap" aria-label="Tournament Play">
 <div class="card g3-panel"><h2>Tournament Play</h2><div class="g3-fields">
 <div><label>Tournament name</label><input id="g3Name" placeholder="e.g. Intermediate Fall League"></div>
-<div><label>Number of nights</label><select id="g3Nights"></select></div>
-<div><label>Rounds per night</label><select id="g3Rounds"></select></div>
+<div><label>Number of Sessions</label><select id="g3Nights"></select></div>
+<div><label>Games per Session</label><select id="g3Rounds"></select></div>
 <div><label>Game format</label><select id="g3Format"><option value="timed">Timed games</option><option value="rally">Modified rally scoring</option></select></div>
 <div><label id="g3GameValueLabel">Minutes per game</label><select id="g3GameValue"></select></div>
 <div><label>Primary ranking</label><select id="g3Ranking"><option value="wins">Most wins (differential tiebreak)</option><option value="diff">Point differential (wins tiebreak)</option></select></div>
-</div><div class="g3-actions"><button class="primary" id="g3Create">Create tournament</button><button class="secondary" id="g3New">New tournament</button><select id="g3Saved" aria-label="Open saved tournament" style="max-width:270px"><option value="">Open saved tournament…</option></select><button class="secondary" id="g3Export">Export Excel workbook</button><button class="secondary" id="g3ImportBtn">Import Excel workbook</button><input id="g3Import" type="file" accept=".xlsx" hidden></div>
+</div><div class="g3-actions"><button class="primary" id="g3Create">Create tournament</button><button class="secondary" id="g3New">New tournament</button><select id="g3Saved" aria-label="Open saved tournament" style="max-width:270px"><option value="">Open saved tournament…</option></select><button class="secondary" id="g3Export">Export Tournament</button><button class="secondary" id="g3ImportBtn">Import Tournament</button><input id="g3Import" type="file" accept=".xlsx" hidden></div>
 <div id="g3Status" class="g3-note" aria-live="polite"></div></div>
 <div id="g3Active" hidden>
 <div class="card g3-panel"><h2 id="g3Heading">Roster</h2><p class="g3-note" id="g3Progress"></p><p class="g3-note" id="g3RosterPolicy">All registered players play every round. There is no individual Sit Out or Leave in Tournament Play. If someone cannot attend, their substitute plays under the registered player's name.</p>
 <div id="g3RosterAdd"><div class="g3-fields"><div><label>Solo entrant</label><input id="g3Solo" placeholder="Player name"></div><div><button id="g3AddSolo" class="secondary">Add solo player</button></div><div><label>Fixed pair · player 1</label><input id="g3Pair1" placeholder="Partner 1"></div><div><label>Fixed pair · player 2</label><input id="g3Pair2" placeholder="Partner 2"></div><div><button id="g3AddPair" class="secondary">Add fixed pair</button></div></div></div>
-<div class="g3-actions"><button class="primary" id="g3Start">Lock roster & start night 1</button><button id="g3Next" class="primary" hidden>Next round</button><button id="g3FinishNight" class="primary" hidden>Finish night</button><button id="g3NextNight" class="primary" hidden>Start next night</button><button id="g3Reset" class="danger">Delete this tournament</button></div>
+<div class="g3-actions"><button class="primary" id="g3Start">Lock roster & start Session 1</button><button id="g3Next" class="primary" hidden>Next game</button><button id="g3FinishNight" class="primary" hidden>Finish Session</button><button id="g3NextNight" class="primary" hidden>Start next Session</button><button id="g3Reset" class="danger">Delete this tournament</button></div>
 <div class="g3-roster" id="g3Roster"></div></div>
-<div id="g3GamesPanel" class="card g3-panel" hidden><h2 id="g3RoundHeading">Court assignments</h2><p class="g3-note">Enter both teams' actual scores on every court. All scores are required before advancing.</p><div class="g3-courts" id="g3Courts"></div><div id="g3TimerBox" class="g3-actions" hidden><span id="g3TimerDisplay" class="g3-pill">12:00</span><button id="g3TimerToggle" class="secondary">Start timer</button><button id="g3TimerReset" class="secondary">Reset timer</button></div></div>
-<div class="card g3-panel"><h2>Nightly standings</h2><div class="g3-tablewrap" id="g3NightStandings"></div></div>
+<div id="g3GamesPanel" class="card g3-panel" hidden><h2 id="g3RoundHeading">Court assignments</h2><p class="g3-note">Enter both teams' actual scores on every court. All scores are required before advancing.</p><div class="g3-courts" id="g3Courts"></div><div id="g3TimerBox" class="g3-actions g3-timer" hidden><strong>Game timer</strong><span id="g3TimerDisplay" class="g3-pill">12:00</span><button id="g3TimerToggle" class="secondary">Start timer</button><button id="g3TimerReset" class="secondary">Reset timer</button></div></div>
+<div class="card g3-panel"><h2>Session Standings</h2><div class="g3-tablewrap" id="g3NightStandings"></div></div>
 <div class="card g3-panel"><h2>Cumulative standings</h2><div class="g3-tablewrap" id="g3OverallStandings"></div><p class="g3-note">Fixed partners appear individually with identical records and share a finishing position. Rankings are based on the organizer's selected method.</p></div>
 <div class="card g3-panel"><h2>Completed games</h2><div class="g3-tablewrap" id="g3History"></div></div>
 </div></section>
 <section class="g2-controls card panel">
- <div class="g2-mode-row"><strong>Session mode</strong><select id="sessionMode"><option value="mixer">Mixer Mode</option><option value="zoned">Zoned Mode</option></select><span id="modePending" class="g2-pending" hidden>Mode change pending — finish current games, then apply.</span><button id="applyMode" class="primary" hidden>Apply Mode Change</button><button id="cancelMode" class="secondary" hidden>Cancel</button></div>
+ <div class="g2-mode-row" style="display:none" aria-hidden="true"><strong>Session mode</strong><select id="sessionMode"><option value="mixer">Mixer Mode</option><option value="zoned">Zoned Mode</option></select><span id="modePending" class="g2-pending" hidden>Mode change pending — finish current games, then apply.</span><button id="applyMode" class="primary" hidden>Apply Mode Change</button><button id="cancelMode" class="secondary" hidden>Cancel</button></div>
  <details id="courtSetup" hidden><summary><strong>Zoned Court Setup</strong> — assign courts to skill groups</summary><div id="zoneCourtSetup" class="g2-court-setup"></div></details>
  </section>
  <div class="grid">
@@ -590,7 +595,7 @@ body.g3-tournament-active .features-panel{display:none!important}
   <details id="featuresHelp">
     <summary>Description of current features</summary>
     <div class="features-content"><h3>Generation 2 — Mixer and Zoned Modes</h3><p><strong>Mixer Mode</strong> retains Generation 1 rotation methods, timers, fixed partners, fair sit-outs, and results. Player names are alphabetical.</p><p><strong>Zoned Mode</strong> lets the organizer assign each of eight courts to one of five rating groups: Developing (2.0–2.99), Intermediate 1 (3.0–3.49), Intermediate 2 (3.5–3.99), Advanced (4.0–4.49), and Elite (4.5+). Each zone has its own Next Cuatro! button and round counter, with no timer. Entered ratings determine zones; Adaptive Rating is disabled during Zoned play and becomes available again in Mixer Mode. Results and session statistics are retained. Select a different session mode, then explicitly apply it after games finish.</p>
-      <p class="feature-version">NextCuatro · Generation 3 · v1.1 Alpha · Flexible. Smart. Adaptive.</p>
+      <p class="feature-version">NextCuatro · Generation 3 · v1.2 Alpha · Flexible. Smart. Adaptive.</p>
       <p><strong>Timer:</strong> Available in Mixer Mode only. Zoned Mode operates without timers, allowing each skill group to advance independently.</p>
       <p><strong>Reset Session Fairness:</strong> After confirmation, resets everything in the Session Fairness table to zero while preserving the player roster, skill selections, fixed teams, mode, and court setup.</p>
       <p><strong>Session fairness:</strong> In Zoned Mode, player names are grouped by their current rating zone and alphabetized within each group. Played, Sat Out, Wins/Losses, and partner history are preserved across Mixer/Zoned changes and Restore. Leave requires confirmation.</p>
@@ -634,7 +639,7 @@ body.g3-tournament-active .features-panel{display:none!important}
     </div>
   </details>
 </section>
-<div class="footer">NextCuatro · Generation 3 · v1.1 Alpha · © 2026 Todd Witte</div>
+<div class="footer">NextCuatro · Generation 3 · v1.2 Alpha · © 2026 Todd Witte</div>
 
 <div id="pairFairnessModal" class="nc-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pairFairnessTitle">
   <div class="nc-modal">
@@ -1669,8 +1674,8 @@ function switchMode(mode){const show=mode==='tournament';document.body.classList
  if($('sessionMode').value!==mode){$('sessionMode').value=mode;$('sessionMode').dispatchEvent(new Event('change'));}
 }
 $('g3PlayType').onchange=e=>switchMode(e.target.value);
-for(let i=1;i<=16;i++)$('g3Nights').add(new Option(`${i} night${i>1?'s':''}`,i));$('g3Nights').value='12';
-for(let i=1;i<=20;i++)$('g3Rounds').add(new Option(`${i} round${i>1?'s':''}`,i));$('g3Rounds').value='6';
+for(let i=1;i<=16;i++)$('g3Nights').add(new Option(`${i} session${i>1?'s':''}`,i));$('g3Nights').value='12';
+for(let i=1;i<=20;i++)$('g3Rounds').add(new Option(`${i} game${i>1?'s':''}`,i));$('g3Rounds').value='6';
 function gameOptions(){const sel=$('g3GameValue');sel.innerHTML='';const timed=$('g3Format').value==='timed';$('g3GameValueLabel').textContent=timed?'Minutes per game':'Rally score target';
  for(const v of (timed?[10,12,15]:[11,15,21]))sel.add(new Option(timed?`${v} minutes`:`First to ${v}`,v));sel.value=timed?'12':'11';}
 $('g3Format').onchange=gameOptions;gameOptions();
@@ -1725,15 +1730,15 @@ function nextRound(){const a=t();if(!a||!a.locked||a.finished)return;
  if(a.format==='rally'&&scores.some(([x,y])=>Math.max(+x,+y)<a.gameValue))return note('Rally games must reach the configured target score.',true);
  a.activeRound.courts.forEach((c,i)=>a.games.push({...c,night:a.night,round:a.round,scoreA:+scores[i][0],scoreB:+scores[i][1]}));a.activeRound=null;
  }
- if(a.round>=a.rounds){persist();render();note('All rounds complete. Finish the night to save its standings.');return;}
- a.round++;a.activeRound={courts:schedule(a)};persist();render();resetTimer();note(`Night ${a.night}, round ${a.round}: assignments ready.`);
+ if(a.round>=a.rounds){persist();render();note('All games complete. Finish the session to save its standings.');return;}
+ a.round++;a.activeRound={courts:schedule(a)};persist();render();resetTimer();note(`Session ${a.night}, game ${a.round}: assignments ready.`);
 }
 $('g3Start').onclick=()=>{const a=t();if(!a||a.locked)return;const n=a.roster.length;if(n<4||n>32||n%4!==0)return note('Roster must contain 4–32 players, in multiples of four, with no sit-outs.',true);
  a.locked=true;a.night=1;a.round=0;persist();nextRound();};
 $('g3Next').onclick=nextRound;
 $('g3FinishNight').onclick=()=>{const a=t();if(!a||a.activeRound||a.round!==a.rounds)return note('Finish and score all rounds first.',true);
  if(a.night===a.nights){a.finished=true;note('Tournament complete! Cumulative standings determine the champions.');}
- else note(`Night ${a.night} completed. Export the Excel workbook before the next session.`);
+ else note(`Session ${a.night} completed. Export the tournament workbook before the next session.`);
  a.nightComplete=true;persist();render();};
 $('g3NextNight').onclick=()=>{const a=t();if(!a||!a.nightComplete||a.finished)return;a.night++;a.round=0;a.nightComplete=false;persist();nextRound();};
 $('g3Reset').onclick=()=>{const a=t();if(a&&confirm(`Permanently delete tournament "${a.name}" from this browser? Export first if you want to preserve it.`)){delete tournaments[current];current=null;persist();render();note('Tournament deleted.');}};
@@ -1743,18 +1748,18 @@ function render(){refreshSaved();const a=t();$('g3Active').hidden=!a;if(!a){draf
  $('g3Name').value=a.name;$('g3Nights').value=a.nights;$('g3Rounds').value=a.rounds;$('g3Format').value=a.format;gameOptions();$('g3GameValue').value=a.gameValue;$('g3Ranking').value=a.ranking;
  for(const id of ['g3Name','g3Nights','g3Rounds','g3Format','g3GameValue','g3Ranking'])$(id).disabled=true;
  $('g3Create').textContent='Create another tournament';$('g3Heading').textContent=a.name;
- $('g3Progress').textContent=`${a.roster.length} players · ${a.roster.length/4} courts · ${a.locked?`Night ${a.night}/${a.nights}, round ${a.round}/${a.rounds}`:'Roster setup'}${a.finished?' · TOURNAMENT COMPLETE':''}`;
+ $('g3Progress').textContent=`${a.roster.length} players · ${a.roster.length/4} courts · ${a.locked?`Session ${a.night}/${a.nights}, game ${a.round}/${a.rounds}`:'Roster setup'}${a.finished?' · TOURNAMENT COMPLETE':''}`;
  $('g3RosterAdd').hidden=a.locked;$('g3Start').hidden=a.locked;$('g3Next').hidden=!a.locked||a.finished||a.nightComplete||(!a.activeRound&&a.round>=a.rounds);
- $('g3Next').textContent=a.activeRound?'Save scores & next round':'Next round';
+ $('g3Next').textContent=a.activeRound?'Save scores & next game':'Next game';
  $('g3FinishNight').hidden=!a.locked||a.finished||a.nightComplete||!!a.activeRound||a.round!==a.rounds;
  $('g3NextNight').hidden=!a.nightComplete||a.finished;
  $('g3Roster').innerHTML=a.roster.map(p=>`<div class="g3-person"><span>${esc(p.name)} <small class="g3-note">${p.pair?'Fixed pair':'Solo'}</small></span>${a.locked?'':`<button data-remove="${esc(p.id)}" title="Remove entrant">×</button>`}</div>`).join('');
  $('g3GamesPanel').hidden=!a.activeRound;$('g3TimerBox').hidden=!a.activeRound||a.format!=='timed';
- if(a.activeRound){$('g3RoundHeading').textContent=`Night ${a.night} · Round ${a.round}`;
+ if(a.activeRound){$('g3RoundHeading').textContent=`Session ${a.night} · Game ${a.round}`;
  $('g3Courts').innerHTML=a.activeRound.courts.map((c,i)=>{const names=ids=>ids.map(id=>a.roster.find(p=>p.id===id)?.name||'?').map(esc).join(' & ');
  return `<div class="g3-court"><strong>Court ${c.court}</strong><div style="margin-top:9px">A: ${names(c.teams[0])}</div><div style="margin-top:6px">B: ${names(c.teams[1])}</div><div class="g3-scoreline"><label for="g3ScoreA_${i}">A score</label><input id="g3ScoreA_${i}" type="number" min="0" step="1" inputmode="numeric" aria-label="Court ${c.court} team A score"><label for="g3ScoreB_${i}">B score</label><input id="g3ScoreB_${i}" type="number" min="0" step="1" inputmode="numeric" aria-label="Court ${c.court} team B score"></div></div>`;}).join('');}
  $('g3NightStandings').innerHTML=tableStats(a,a.night);$('g3OverallStandings').innerHTML=tableStats(a,0);
- $('g3History').innerHTML=a.games.length?`<table class="g3-table"><thead><tr><th>Night</th><th>Round</th><th>Court</th><th>Team A</th><th>Team B</th><th>Score</th></tr></thead><tbody>${a.games.slice().reverse().map(g=>`<tr><td>${g.night}</td><td>${g.round}</td><td>${g.court}</td><td>${g.teams[0].map(id=>esc(a.roster.find(p=>p.id===id)?.name)).join(' & ')}</td><td>${g.teams[1].map(id=>esc(a.roster.find(p=>p.id===id)?.name)).join(' & ')}</td><td>${g.scoreA}–${g.scoreB}</td></tr>`).join('')}</tbody></table>`:'<p class="g3-note">No completed games yet.</p>';
+ $('g3History').innerHTML=a.games.length?`<table class="g3-table"><thead><tr><th>Session</th><th>Game</th><th>Court</th><th>Team A</th><th>Team B</th><th>Score</th></tr></thead><tbody>${a.games.slice().reverse().map(g=>`<tr><td>${g.night}</td><td>${g.round}</td><td>${g.court}</td><td>${g.teams[0].map(id=>esc(a.roster.find(p=>p.id===id)?.name)).join(' & ')}</td><td>${g.teams[1].map(id=>esc(a.roster.find(p=>p.id===id)?.name)).join(' & ')}</td><td>${g.scoreA}–${g.scoreB}</td></tr>`).join('')}</tbody></table>`:'<p class="g3-note">No completed games yet.</p>';
 }
 $('g3TimerToggle').onclick=()=>{if(timer){stopTimer();return;}if(timerLeft<=0)resetTimer();timerEnd=Date.now()+timerLeft*1000;$('g3TimerToggle').textContent='Pause timer';timer=setInterval(()=>{timerLeft=Math.max(0,Math.ceil((timerEnd-Date.now())/1000));timerRender();if(timerLeft===0){stopTimer();try{navigator.vibrate?.([300,200,300]);}catch(e){}}},250);};
 $('g3TimerReset').onclick=resetTimer;
@@ -1770,19 +1775,19 @@ function zip(entries){const parts=[],central=[];let offset=0;const w16=(d,o,v)=>
 const xml=x=>esc(x).replace(/&#39;/g,'&apos;');
 function sheet(rows){return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${rows.map((r,i)=>`<row r="${i+1}">${r.map((v,j)=>{let n=j+1,col='';while(n){n--;col=String.fromCharCode(65+n%26)+col;n=Math.floor(n/26);}return typeof v==='number'&&Number.isFinite(v)?`<c r="${col}${i+1}"><v>${v}</v></c>`:`<c r="${col}${i+1}" t="inlineStr"><is><t>${xml(v??'')}</t></is></c>`;}).join('')}</row>`).join('')}</sheetData></worksheet>`;}
 function workbook(a){const p=id=>a.roster.find(x=>x.id===id)?.name||'?';const rows=[
- ['Tournament', [['Tournament name',a.name],['Nights',a.nights],['Rounds per night',a.rounds],['Format',a.format],['Game length/target',a.gameValue],['Ranking',a.ranking],['Current night',a.night],['Current round',a.round],['Completed',a.finished?'Yes':'No']]],
+ ['Tournament', [['Tournament name',a.name],['Sessions',a.nights],['Games per session',a.rounds],['Format',a.format],['Game length/target',a.gameValue],['Ranking',a.ranking],['Current session',a.night],['Current game',a.round],['Completed',a.finished?'Yes':'No']]],
  ['Roster',[['Player ID','Player name','Fixed pair ID'],...a.roster.map(p=>[p.id,p.name,p.pair||''])]],
- ['Games',[['Night','Round','Court','Team A player 1','Team A player 2','Team B player 1','Team B player 2','A score','B score'],...a.games.map(g=>[g.night,g.round,g.court,...g.teams[0].map(p),...g.teams[1].map(p),g.scoreA,g.scoreB])]],
- ['Night Standings',[['Player','Wins','Losses','Differential','Games'],...stats(a,a.night).map(p=>[p.name,p.w,p.l,p.d,p.played])]],
+ ['Games',[['Session','Game','Court','Team A player 1','Team A player 2','Team B player 1','Team B player 2','A score','B score'],...a.games.map(g=>[g.night,g.round,g.court,...g.teams[0].map(p),...g.teams[1].map(p),g.scoreA,g.scoreB])]],
+ ['Session Standings',[['Player','Wins','Losses','Differential','Games'],...stats(a,a.night).map(p=>[p.name,p.w,p.l,p.d,p.played])]],
  ['Overall Standings',[['Player','Wins','Losses','Differential','Games'],...stats(a,0).map(p=>[p.name,p.w,p.l,p.d,p.played])]],
- ['Scheduling History',[['Night','Round','Court','A1 ID','A2 ID','B1 ID','B2 ID'],...a.games.map(g=>[g.night,g.round,g.court,...g.teams.flat()])]],
+ ['Scheduling History',[['Session','Game','Court','A1 ID','A2 ID','B1 ID','B2 ID'],...a.games.map(g=>[g.night,g.round,g.court,...g.teams.flat()])]],
  ['MachineData',[['NextCuatro G3 v1 JSON · do not edit'],['JSON'],[JSON.stringify(a)]]]
  ];const entries=[['[Content_Types].xml',utf(`<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>${rows.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}</Types>`) ],
  ['_rels/.rels',utf(`<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`) ],
  ['xl/workbook.xml',utf(`<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${rows.map(([name],i)=>`<sheet name="${xml(name)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')}</sheets></workbook>`) ],
  ['xl/_rels/workbook.xml.rels',utf(`<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rows.map((_,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')}</Relationships>`) ]];
  rows.forEach(([,r],i)=>entries.push([`xl/worksheets/sheet${i+1}.xml`,utf(sheet(r))]));return zip(entries);}
-$('g3Export').onclick=()=>{const a=t();if(!a)return note('Create or import a tournament before exporting.',true);const blob=workbook(a),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=`NextCuatro_${a.name.replace(/[^a-z0-9_-]+/gi,'_')}_night${a.night}.xlsx`;link.click();setTimeout(()=>URL.revokeObjectURL(url),5000);note('Excel workbook downloaded. Keep this file as the tournament backup.');};
+$('g3Export').onclick=()=>{const a=t();if(!a)return note('Create or import a tournament before exporting.',true);const blob=workbook(a),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=`NextCuatro_${a.name.replace(/[^a-z0-9_-]+/gi,'_')}_night${a.night}.xlsx`;link.click();setTimeout(()=>URL.revokeObjectURL(url),5000);note('Tournament workbook downloaded. Keep this file as the tournament backup.');};
 $('g3ImportBtn').onclick=()=>$('g3Import').click();
 const rd16=(b,o)=>b[o]|b[o+1]<<8,rd32=(b,o)=>(b[o]|b[o+1]<<8|b[o+2]<<16|b[o+3]<<24)>>>0;
 async function unzipFile(buf,target){const b=new Uint8Array(buf);let pos=0;while(pos+30<b.length&&rd32(b,pos)===0x04034b50){const flags=rd16(b,pos+6),method=rd16(b,pos+8),size=rd32(b,pos+18),nlen=rd16(b,pos+26),elen=rd16(b,pos+28),name=unutf(b.slice(pos+30,pos+30+nlen)),start=pos+30+nlen+elen;
@@ -1790,7 +1795,7 @@ async function unzipFile(buf,target){const b=new Uint8Array(buf);let pos=0;while
 $('g3Import').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const data=await unzipFile(await file.arrayBuffer(),'xl/worksheets/sheet7.xml'),doc=new DOMParser().parseFromString(data,'application/xml');if(doc.querySelector('parsererror'))throw Error('Invalid worksheet XML');const rows=[...doc.getElementsByTagName('row')];const text=rows[2]?.getElementsByTagName('t')[0]?.textContent;if(!text)throw Error('No tournament state found');const a=JSON.parse(text);
  if(!a||!a.id||!a.name||!Array.isArray(a.roster)||!Array.isArray(a.games)||a.roster.length>32||a.nights>16||a.rounds>20||!['wins','diff'].includes(a.ranking))throw Error('Invalid tournament data');
  if(t()&&!confirm(`Import "${a.name}"? It will become the active tournament. Existing tournaments remain in this browser.`))return;
- tournaments[a.id]=a;current=a.id;persist();render();resetTimer();note(`Imported ${a.name}, night ${a.night}. All game history and standings restored.`);
+ tournaments[a.id]=a;current=a.id;persist();render();resetTimer();note(`Imported ${a.name}, session ${a.night}. All game history and standings restored.`);
  }catch(err){note('Import failed: '+err.message,true);}finally{e.target.value='';}};
 render();
 })();
