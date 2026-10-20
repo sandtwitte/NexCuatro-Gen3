@@ -594,7 +594,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
   <details id="featuresHelp">
     <summary>Description of current features</summary>
     <div class="features-content">
-      <h3>NextCuatro — Generation 3 · v1.3.1 Alpha</h3>
+      <h3>NextCuatro — Generation 3 · v1.4 Alpha</h3>
       <p>NextCuatro supports three play modes: <strong>Mixer Play</strong>, <strong>Zoned Play</strong>, and the new <strong>Tournament Play</strong>. Choose a mode using the single <strong>Play Mode</strong> selector. Confirm the warning before switching; Mixer/Zoned player records are retained, and tournaments are stored separately.</p>
       <h3>Mixer Play</h3>
       <p>Flexible drop-in play for changing attendance, with up to eight courts and rosters of up to 96 tested players. Choose <strong>Smart Random</strong>, <strong>Similar Skill</strong>, or <strong>Balanced Teams</strong>. Mixer includes optional skill ratings, fixed partners, sit-outs, departures and returns, fairness tracking, wins/losses, optional adaptive ratings, and a 10-, 12-, or 15-minute timer.</p>
@@ -611,7 +611,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
         <li>Substitutes can play in a registered player's place while the results remain credited to that registrant.</li>
         <li><strong>Export Tournament</strong> and <strong>Import Tournament</strong> use an Excel-compatible .xlsx workbook. These files can also be stored in Google Drive and opened in Google Sheets; this is not live Google Sheets synchronization.</li>
       </ul>
-      <p class="feature-version">NextCuatro · Generation 3 · v1.3.1 Alpha · Flexible. Smart. Adaptive.</p>
+      <p class="feature-version">NextCuatro · Generation 3 · v1.4 Alpha · Flexible. Smart. Adaptive.</p>
       <h3>Mixer and Zoned details</h3>
       <h3>Players &amp; availability</h3>
       <ul>
@@ -624,7 +624,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
       <h3>Rotation modes</h3>
       <ul>
         <li><strong>Smart Random:</strong> rotates players while considering sit-out fairness and teammate variety.</li>
-        <li><strong>Similar Skill:</strong> groups players with broadly similar skill levels.</li>
+        <li><strong>Similar Skill:</strong> uses a soft court ladder: Court 1 has the strongest players, with progressively lower ratings on higher-numbered courts. Players normally remain on their natural court or move only one court up or down; fixed pairs and unavoidable roster constraints may require exceptions.</li>
         <li><strong>Balanced Teams:</strong> aims to create competitive, evenly matched teams by keeping the sum of player ratings similar on each side.</li>
         <li>Adjust the number of available courts as attendance changes.</li>
       </ul>
@@ -652,7 +652,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     </div>
   </details>
 </section>
-<div class="footer">NextCuatro · Generation 3 · v1.3.1 Alpha · © 2026 Todd Witte</div>
+<div class="footer">NextCuatro · Generation 3 · v1.4 Alpha · © 2026 Todd Witte</div>
 
 <div id="pairFairnessModal" class="nc-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pairFairnessTitle">
   <div class="nc-modal">
@@ -1125,25 +1125,103 @@ body.g3-tournament-active .app > .grid{display:none!important}
     };
   }
 
+  // Mixer / Similar Skill: a soft, skill-ordered court ladder.
+  // Unlike Smart Random, court skill compatibility takes precedence over
+  // partner history. Fixed pairs remain indivisible when packing courts.
   function buildSimilar(players){
-    let best=null,bestCost=Infinity;
-    const trials=players.length>=24?60:100;
-    for(let t=0;t<trials;t++){
-      const groups=shuffledCourtGroups(players);
-      if(!groups)continue;
-      let cost=0,round=[],ok=true;
-      for(const g of groups){
-        const rs=g.map(rating);
-        cost+=(Math.max(...rs)-Math.min(...rs))*45+groupRepeatCost(g)*.6;
-        const pairing=bestTeams(g,'similar');
-        if(!pairing){ok=false;break;}
-        round.push(pairing);
+    const count=players.length/4;
+    if(!Number.isInteger(count) || !count)return [];
+    const ranked=[...players].sort((a,b)=>rating(b)-rating(a));
+    const natural=new Map(ranked.map((p,i)=>[p.id,Math.floor(i/4)]));
+    const units=makeUnits(players);
+    const avg=u=>u.reduce((sum,p)=>sum+rating(p),0)/u.length;
+    const courtMean=g=>g.reduce((sum,p)=>sum+rating(p),0)/g.length;
+    const range=g=>g.length ? Math.max(...g.map(rating))-Math.min(...g.map(rating)) : 0;
+    const sortedGroups=groups=>groups.sort((a,b)=>courtMean(b)-courtMean(a));
+
+    // Court spreads dominate historical variety. A player moving two or more
+    // courts away from their natural rank incurs a substantial penalty.
+    function score(groups){
+      let cost=0;
+      for(let c=0;c<groups.length;c++){
+        const g=groups[c];
+        const spread=range(g);
+        cost+=spread*1000+spread*spread*160;
+        for(const p of g){
+          const distance=Math.abs(c-natural.get(p.id));
+          if(distance>1)cost+=2500*(distance-1)*(distance-1);
+          cost+=distance*3;
+        }
+        cost+=groupRepeatCost(g)*0.06;
       }
-      if(ok&&cost<bestCost){best=round;bestCost=cost;}
+      return cost;
     }
-    if(!best)return buildSmartFallback(players);
-    best.sort((x,y)=>y.flat().reduce((a,p)=>a+rating(p),0)-x.flat().reduce((a,p)=>a+rating(p),0));
-    return best;
+    // Place complete pairs before solos, preferring the closest skill band.
+    function initial(){
+      const groups=Array.from({length:count},()=>[]);
+      const pairs=units.filter(u=>u.length===2).sort((a,b)=>avg(b)-avg(a));
+      const singles=units.filter(u=>u.length===1).sort((a,b)=>avg(b)-avg(a));
+      for(const unit of [...pairs,...singles]){
+        let choice=-1,least=Infinity;
+        for(let c=0;c<count;c++){
+          const g=groups[c];
+          if(g.length+unit.length>4)continue;
+          const joined=[...g,...unit];
+          const displacement=unit.reduce((v,p)=>v+Math.pow(Math.max(0,Math.abs(c-natural.get(p.id))-1),2)*2500+Math.abs(c-natural.get(p.id))*3,0);
+          const penalty=(range(joined)*1000+range(joined)**2*160)+displacement;
+          // Filling a court close to capacity avoids stranding a fixed pair.
+          const value=penalty+(4-joined.length)*0.01;
+          if(value<least){least=value;choice=c;}
+        }
+        if(choice<0)return null;
+        groups[choice].push(...unit);
+      }
+      return groups.every(g=>g.length===4)?sortedGroups(groups):null;
+    }
+    let groups=initial();
+    if(!groups)return buildSmartFallback(players);
+    // Swap equal-size units, or one pair for two singles. Every candidate
+    // preserves complete courts and fixed partners. Only accept improvements.
+    for(let pass=0;pass<45;pass++){
+      let bestCost=score(groups),best=null;
+      const courtUnits=groups.map(g=>makeUnits(g));
+      for(let i=0;i<count;i++)for(let j=i+1;j<count;j++){
+        const left=courtUnits[i],right=courtUnits[j];
+        const candidates=[];
+        for(const u of left)for(const v of right)if(u.length===v.length)candidates.push([u,[v]]);
+        for(const u of left.filter(u=>u.length===2)){
+          const singles=right.filter(u=>u.length===1);
+          for(let x=0;x<singles.length;x++)for(let y=x+1;y<singles.length;y++)candidates.push([u,[singles[x],singles[y]]]);
+        }
+        for(const v of right.filter(u=>u.length===2)){
+          const singles=left.filter(u=>u.length===1);
+          for(let x=0;x<singles.length;x++)for(let y=x+1;y<singles.length;y++)candidates.push([[singles[x][0],singles[y][0]],[v]]);
+        }
+        for(const [leftMove,rightUnits] of candidates){
+          const rightMove=rightUnits.flat();
+          if(leftMove.length!==rightMove.length)continue;
+          const lIds=new Set(leftMove.map(p=>p.id)),rIds=new Set(rightMove.map(p=>p.id));
+          const candidate=groups.map(g=>[...g]);
+          candidate[i]=[...groups[i].filter(p=>!lIds.has(p.id)),...rightMove];
+          candidate[j]=[...groups[j].filter(p=>!rIds.has(p.id)),...leftMove];
+          sortedGroups(candidate);
+          const cost=score(candidate);
+          if(cost<bestCost-0.00001){bestCost=cost;best=candidate;}
+        }
+      }
+      if(!best)break;
+      groups=best;
+    }
+    // Keep court numbers descending by average rating; team selection is
+    // secondary and never moves players between courts.
+    sortedGroups(groups);
+    const result=[];
+    for(const g of groups){
+      const pairing=bestTeams(g,'similar');
+      if(!pairing)return buildSmartFallback(players);
+      result.push(pairing);
+    }
+    return result;
   }
 
   function buildBalanced(players){
