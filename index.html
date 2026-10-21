@@ -406,6 +406,10 @@ input,select,button{max-width:100%}
   #playerName{min-width:0}
   @media(max-width:640px){.g2-next-main{font-size:22px}.g2-next-sub{font-size:17px}}
 
+  .nc-physical-courts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;width:100%;margin-top:5px}
+  .nc-physical-courts button{padding:9px 3px;font-size:13px;border:1px solid #9ca3af;border-radius:7px;background:#f1f5f9;color:#334155;cursor:pointer}
+  .nc-physical-courts button.selected{background:#dcfce7;border-color:#15803d;color:#14532d;font-weight:700}
+  #mixerCourtSetup{display:block}
   /* G2 v1.3 — restrained court cards and clear navy zone outlines */
   .g2-zone{border:3px solid #102A43!important;border-radius:12px}
   .g2-zone .court,#courtArea .court{border:1px solid #d8e0e7!important;border-top:1px solid #d8e0e7!important;box-shadow:none}
@@ -489,7 +493,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
       </div>
       <div class="setup-row" id="mixerCourtSetup">
         <div>
-          <input id="courtCount" type="number" min="1" max="8" value="4">
+          <input id="courtCount" type="number" min="1" max="8" value="4" hidden aria-label="Number of available courts"><div id="mixerCourtPicker" class="nc-physical-courts" aria-label="Select physical courts"></div><p class="subtle" style="margin:6px 0 0">Select the actual court numbers at your venue. Changes apply to the next game.</p>
         </div>
         <div style="display:none">
           <label>Court availability</label>
@@ -580,7 +584,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
         <div style="overflow:auto">
           <table>
             <thead>
-              <tr><th>Player</th><th>Played</th><th>Sat Out</th><th>Wins/Losses</th><th>Adaptive rating</th><th>Different partners</th><th>Status</th></tr>
+              <tr><th>Player</th><th>Played</th><th>Byes / Sit Outs</th><th>Wins/Losses</th><th>Adaptive rating</th><th>Different partners</th><th>Status</th></tr>
             </thead>
             <tbody id="statsBody"></tbody>
           </table>
@@ -594,7 +598,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
   <details id="featuresHelp">
     <summary>Description of current features</summary>
     <div class="features-content">
-      <h3>NextCuatro — Generation 3 · v1.4 Alpha</h3>
+      <h3>NextCuatro — Generation 3 · v1.5 Alpha</h3>
       <p>NextCuatro supports three play modes: <strong>Mixer Play</strong>, <strong>Zoned Play</strong>, and the new <strong>Tournament Play</strong>. Choose a mode using the single <strong>Play Mode</strong> selector. Confirm the warning before switching; Mixer/Zoned player records are retained, and tournaments are stored separately.</p>
       <h3>Mixer Play</h3>
       <p>Flexible drop-in play for changing attendance, with up to eight courts and rosters of up to 96 tested players. Choose <strong>Smart Random</strong>, <strong>Similar Skill</strong>, or <strong>Balanced Teams</strong>. Mixer includes optional skill ratings, fixed partners, sit-outs, departures and returns, fairness tracking, wins/losses, optional adaptive ratings, and a 10-, 12-, or 15-minute timer.</p>
@@ -611,14 +615,14 @@ body.g3-tournament-active .app > .grid{display:none!important}
         <li>Substitutes can play in a registered player's place while the results remain credited to that registrant.</li>
         <li><strong>Export Tournament</strong> and <strong>Import Tournament</strong> use an Excel-compatible .xlsx workbook. These files can also be stored in Google Drive and opened in Google Sheets; this is not live Google Sheets synchronization.</li>
       </ul>
-      <p class="feature-version">NextCuatro · Generation 3 · v1.4 Alpha · Flexible. Smart. Adaptive.</p>
+      <p class="feature-version">NextCuatro · Generation 3 · v1.5 Alpha · Flexible. Smart. Adaptive.</p>
       <h3>Mixer and Zoned details</h3>
       <h3>Players &amp; availability</h3>
       <ul>
         <li>Add players before or during a session; new players receive priority in the next rotation when space permits, without catching up on earlier sit-outs.</li>
         <li>Choose a self-reported skill level, or leave a player Unrated.</li>
         <li>Pair two players who want to play together, or unpair them.</li>
-        <li>Use Sit Out for a one-game break, or Leave when someone is done for the session.</li>
+        <li>Use Bye / Sit Out for a one-game break, or Done Playing / Leave when someone is finished for the session.</li>
         <li>See the number of active players at a glance. NextCuatro has been tested with up to 96 active players; additional players are allowed after a one-time warning, but larger sessions are not yet validated.</li>
       </ul>
       <h3>Rotation modes</h3>
@@ -626,7 +630,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
         <li><strong>Smart Random:</strong> rotates players while considering sit-out fairness and teammate variety.</li>
         <li><strong>Similar Skill:</strong> uses a soft court ladder: Court 1 has the strongest players, with progressively lower ratings on higher-numbered courts. Players normally remain on their natural court or move only one court up or down; fixed pairs and unavoidable roster constraints may require exceptions.</li>
         <li><strong>Balanced Teams:</strong> aims to create competitive, evenly matched teams by keeping the sum of player ratings similar on each side.</li>
-        <li>Adjust the number of available courts as attendance changes.</li>
+        <li>Select the actual numbered physical courts (1–8), including nonconsecutive numbers; availability changes take effect with the next game.</li><li>Smart Random and Balanced Teams favor less-used physical courts and discourage repeat groups of four. Similar Skill retains its ordered skill ladder.</li>
       </ul>
       <h3>Fairness &amp; fixed pairs</h3>
       <ul>
@@ -652,7 +656,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     </div>
   </details>
 </section>
-<div class="footer">NextCuatro · Generation 3 · v1.4 Alpha · © 2026 Todd Witte</div>
+<div class="footer">NextCuatro · Generation 3 · v1.5 Alpha · © 2026 Todd Witte</div>
 
 <div id="pairFairnessModal" class="nc-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pairFairnessTitle">
   <div class="nc-modal">
@@ -672,7 +676,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
   const defaultState = {
     sessionMode:'mixer', pendingMode:null, zoneCourts:['developing','developing','int1','int1','int2','int2','advanced',null], zoneRounds:{}, zonePools:{},
     round: 0,
-    courts: 4,
+    courts: 4, mixerCourts:null,
     endType: 'open',
     endTime: '',
     mode: 'smart',
@@ -702,8 +706,12 @@ body.g3-tournament-active .app > .grid{display:none!important}
     }catch(e){ return structuredClone(defaultState); }
   }
   function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  if(!Array.isArray(state.mixerCourts)) state.mixerCourts=Array.from({length:Math.min(8,Math.max(1,Number(state.courts)||4))},(_,i)=>i+1);
+  state.mixerCourts=[...new Set(state.mixerCourts.map(Number).filter(n=>Number.isInteger(n)&&n>=1&&n<=8))].sort((a,b)=>a-b);
+  if(!state.mixerCourts.length)state.mixerCourts=[1];
+  state.courts=state.mixerCourts.length;
   state.players=(state.players||[]).map(p=>({
-    wins:0,losses:0,partners:{},opponents:{},played:0,sat:0,lastSatRound:-999,
+    wins:0,losses:0,partners:{},opponents:{},courtVisits:{},played:0,sat:0,lastSatRound:-999,
     joinedRound:0,fairnessOffset:0,firstGamePriority:false,status:'active',fixedPartnerId:null,sitNext:false,playStreak:0,
     adaptiveRating:null,resultGames:0,...p
   }));
@@ -757,7 +765,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
       id:uid(), name:raw, skill, status:'active',
       played:0, sat:0, lastSatRound:-999, joinedRound:state.round,
       fairnessOffset:arrivalBaseline(null), firstGamePriority:true,
-      partners:{}, opponents:{}, wins:0, losses:0,
+      partners:{}, opponents:{}, courtVisits:{}, wins:0, losses:0,
       fixedPartnerId:null, sitNext:false, playStreak:0, adaptiveRating:skill, resultGames:0, useAdaptive:false
     });
     $('playerName').value='';
@@ -1043,7 +1051,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
           let opponents=0;
           for(const x of opt[0])for(const y of opt[1])opponents+=opponentCount(x,y);
           const rest=solve(mask^inds.reduce((m,i)=>m|(1<<i),0));
-          const cost=rest.cost+repeatsAny*1000000+repeat*10000+opponents*2+Math.random()*.05;
+          const cost=rest.cost+repeatsAny*1000000+repeat*10000+opponents*2+groupRepeatCost(group)*5+Math.random()*.05;
           if(cost<best.cost)best={cost,courts:[opt,...rest.courts]};
         }
       }
@@ -1085,7 +1093,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
       for(const g of groups){
         const pairing=bestTeams(g,'smart');
         if(!pairing){ok=false;break;}
-        cost+=repeatCost(pairing,.1);round.push(pairing);
+        cost+=repeatCost(pairing,.1)+groupRepeatCost(g)*2;round.push(pairing);
       }
       if(ok&&cost<bestCost){best=round;bestCost=cost;}
     }
@@ -1236,7 +1244,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
         if(!pairing){ok=false;break;}
         const diff=teamBalanceCost(pairing);
         cost += diff<=.25 ? diff*2 : diff<=.5 ? 2+diff*8 : 30+diff*30;
-        cost += repeatCost(pairing,.5);
+        cost += repeatCost(pairing,.5)+groupRepeatCost(g)*2;
         round.push(pairing);
       }
       if(ok && cost<bestCost){best=round;bestCost=cost;}
@@ -1284,7 +1292,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
       finalizeAdaptiveResults();
       finalizeLeavers();
     }
-    state.courts = Math.min(8, Math.max(1, Number($('courtCount').value)||1));
+    state.courts = state.mixerCourts.length;
     state.mode = $('modeSelect').value;
     state.endType = $('sessionEndType').value;
     state.endTime = $('endTime').value;
@@ -1295,7 +1303,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
       alert('You need at least 4 active players to create a round.');
       return;
     }
-    const fullCourts=Math.min(state.courts, Math.floor(actives.length/4));
+    const fullCourts=Math.min(state.mixerCourts.length, Math.floor(actives.length/4));
     const capacity=fullCourts*4;
     if(!skipPairPrompt && maybeSuggestPairBreak(actives,capacity)) return;
     let forcedSitter=null;
@@ -1330,6 +1338,21 @@ body.g3-tournament-active .app > .grid{display:none!important}
       alert('Unable to form valid teams with the current pairings. Try adjusting pairings or court count.');
       return;
     }
+    // Smart Random and Balanced Teams rotate court locations for social variety.
+    // Similar Skill deliberately retains the ordered physical-court ladder.
+    const physical=state.mixerCourts.slice(0,fullCourts);
+    if(state.mode!=='similar' && fullCourts>1){
+      const remaining=[...courts], arranged=[];
+      for(const number of physical){
+        let best=0,low=Infinity;
+        for(let i=0;i<remaining.length;i++){
+          const cost=remaining[i].flat().reduce((sum,p)=>sum+(p.courtVisits?.[number]||0)*10,0)+Math.random()*.05;
+          if(cost<low){low=cost;best=i;}
+        }
+        arranged.push(remaining.splice(best,1)[0]);
+      }
+      courts=arranged;
+    }
     state.round += 1;
 
     // "Sit Out" lasts exactly one round. It counts as a real sit for fairness,
@@ -1347,8 +1370,10 @@ body.g3-tournament-active .app > .grid{display:none!important}
       p.lastSatRound = state.round;
       p.playStreak=0;
     }
-    for(const pairing of courts){
+    for(const [courtIndex,pairing] of courts.entries()){
       const [[a,b],[c,d]]=pairing;
+      const number=physical[courtIndex];
+      for(const p of [a,b,c,d]){p.courtVisits=p.courtVisits||{};p.courtVisits[number]=(p.courtVisits[number]||0)+1;}
       for(const p of [a,b,c,d]){ p.played += 1; p.firstGamePriority=false; p.playStreak=(p.playStreak||0)+1; }
       incrementMap(a.partners,b.id); incrementMap(b.partners,a.id);
       incrementMap(c.partners,d.id); incrementMap(d.partners,c.id);
@@ -1365,6 +1390,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     state.currentRound = {
       number:state.round,
       courts:courts.map(pair=>pair.map(team=>team.map(p=>p.id))),
+      courtNumbers:physical,
       waiting:displayWaiting.map(p=>p.id),
       mode:state.mode,
       results:courts.map(()=>null)
@@ -1407,13 +1433,13 @@ body.g3-tournament-active .app > .grid{display:none!important}
           <div class="tiny">${isZoned()?`<span class="g2-roster-tag" style="color:#102A43">${escapeHtml(zoneName(currentZone(p)))}</span> · `:""}${statusLabel(p.status)}${p.pendingZone!==undefined?" · Moving after game":""}${partner?' · Team: '+escapeHtml(partner.name):''}</div>
         </div>
         <div class="status-menu">
-          <button data-action="sit" class="${p.sitNext?'selected':''}">Sit Out</button>
+          <button data-action="sit" class="${p.sitNext?'selected':''}">Bye / Sit Out</button>
           <select data-action="pair" title="Fixed team for this session" style="max-width:150px">
             <option value="">Solo</option>${pairOptions}
           </select>
          
           <button data-action="adaptive" class="${p.useAdaptive===true && Number.isFinite(p.adaptiveRating)?'selected':''}" ${isZoned()||!Number.isFinite(p.adaptiveRating)?'disabled':''} title="${isZoned()?'Adaptive Rating is available only in Mixer Mode':'Toggle adaptive rating'}">Adaptive: ${Number.isFinite(p.adaptiveRating) ? (p.useAdaptive===true?'ON':'OFF') : '—'}</button>
-          <button data-action="left">Leave</button>
+          <button data-action="left">Done Playing / Leave</button>
         </div>`;
       row.querySelector('[data-action="sit"]').onclick=()=>toggleSit(p.id);
       row.querySelector('[data-action="skill"]').onchange=e=>setSkill(p.id,e.target.value);
@@ -1479,7 +1505,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
       const t2=court[1].map(nameById);
       const result=(cr.results||[])[idx]??null;
       card.innerHTML=`
-        <h3>COURT ${idx+1}</h3>
+        <h3>COURT ${(cr.courtNumbers||[])[idx]??idx+1}</h3>
         <button class="team team-pick ${result==='A'?'selected':''}" data-result="A" title="Tap to record this team as winner"><span class="team-row"><span>${escapeHtml(t1[0])} + ${escapeHtml(t1[1])}</span>${result==='A'?'<span class="winner-label">WINNER</span>':''}</span></button>
         <div class="vs">serves to</div>
         <button class="team team-pick ${result==='B'?'selected':''}" data-result="B" title="Tap to record this team as winner"><span class="team-row"><span>${escapeHtml(t2[0])} + ${escapeHtml(t2[1])}</span>${result==='B'?'<span class="winner-label">WINNER</span>':''}</span></button>`;
@@ -1488,7 +1514,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     });
     if(cr.waiting.length){
       $('waitingBox').style.display='block';
-      $('waitingBox').innerHTML=`<strong>Sitting this game out:</strong> ${cr.waiting.map(nameById).map(escapeHtml).join(', ')}`;
+      $('waitingBox').innerHTML=`<strong>On Bye / Sitting Out:</strong> ${cr.waiting.map(nameById).map(escapeHtml).join(', ')}`;
     } else $('waitingBox').style.display='none';
     $('nextRoundBtn').innerHTML=nextButtonHtml('Next Cuatro!');
   }
@@ -1534,6 +1560,22 @@ body.g3-tournament-active .app > .grid{display:none!important}
     } else $('reservationNote').textContent='Open-ended session.';
   }
 
+  function renderMixerCourtPicker(){
+    const root=$('mixerCourtPicker');
+    root.innerHTML='';
+    for(let n=1;n<=8;n++){
+      const btn=document.createElement('button');btn.type='button';
+      const selected=state.mixerCourts.includes(n);
+      btn.textContent='Court '+n;btn.className=selected?'selected':'';
+      btn.setAttribute('aria-pressed',String(selected));
+      btn.onclick=()=>{
+        if(selected && state.mixerCourts.length===1){alert('Select at least one court.');return;}
+        state.mixerCourts=selected?state.mixerCourts.filter(x=>x!==n):[...state.mixerCourts,n].sort((a,b)=>a-b);
+        state.courts=state.mixerCourts.length;save();render();
+      };
+      root.appendChild(btn);
+    }
+  }
   function render(){
     normalizeZonePools();
     $('sessionMode').value=state.pendingMode||state.sessionMode;
@@ -1548,6 +1590,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     $('availableCourtsTitle').hidden=isZoned();
     if(isZoned())renderZones();
     $('courtCount').value=state.courts;
+    renderMixerCourtPicker();
     $('sessionEndType').value=state.endType;
     $('endTime').value=state.endTime;
     $('modeSelect').value=state.mode;
@@ -1608,8 +1651,8 @@ body.g3-tournament-active .app > .grid{display:none!important}
         if(old===next)return;
         // Never discard a zone's current round while reallocating a court.
         // A reassignment may be made after the affected rounds are finished and cleared.
-        const affected=[old,next].filter(Boolean);
-        if(affected.some(zid=>state.zoneRounds[zid]?.currentRound)){
+        const inProgress=old && state.zoneRounds[old]?.currentRound;
+        if(inProgress && (inProgress.courtNumbers||[]).includes(i+1)){
           alert('Finish the current games in the affected skill zones before changing this court assignment. No changes were made.');
           render();return;
         }
@@ -1710,7 +1753,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
   $('timerStartBtn').onclick=toggleTimer;
   $('timerResetBtn').onclick=resetTimer;
   $('timerMinutes').onchange=resetTimer;
-  $('courtCount').onchange=()=>{state.courts=Math.min(8,Math.max(1,Number($('courtCount').value)||1));save();render();};
+  $('courtCount').onchange=()=>{state.courts=state.mixerCourts.length;save();render();};
   $('modeSelect').onchange=()=>{state.mode=$('modeSelect').value;save();};
   $('sessionEndType').onchange=()=>{state.endType=$('sessionEndType').value;save();renderReservation();};
   $('endTime').onchange=()=>{state.endTime=$('endTime').value;save();renderReservation();};
@@ -1722,7 +1765,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     // availability, court allocations, and active games untouched.
     for(const p of state.players){
       p.played=0; p.sat=0; p.wins=0; p.losses=0;
-      p.partners={}; p.opponents={};
+      p.partners={}; p.opponents={}; p.courtVisits={};
       p.adaptiveRating=p.skill==null?null:p.skill;
       p.resultGames=0;
       p.fairnessOffset=0; p.firstGamePriority=false;
