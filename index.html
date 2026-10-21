@@ -443,7 +443,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
 .g3-pill{background:#eef8df;border-radius:9px;padding:6px 10px;font-weight:700;color:#123b5d}
 @media(max-width:640px){.g3-panel{padding:12px}.g3-switch{padding:0 6px}.g3-courts{grid-template-columns:1fr}}
 
-/* G3 v1.7 Alpha — unified high-contrast court presentation (visual only) */
+/* G3 v1.8 Alpha — unified high-contrast court presentation (visual only) */
 :root{--nc-court-navy:#092f68;--nc-court-green:#087b2a;--nc-player-blue:#123d79;--nc-serve-gray:#697889}
 #courtArea .courts{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important}
 .g2-zone-courts{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important}
@@ -551,7 +551,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
         <input id="playerName" placeholder="Player Name" aria-label="Player Name">
         <select id="playerSkill" title="Skill rating">
           <option value="">Unrated</option>
-          <option>1.0</option><option>1.25</option><option>1.5</option><option>1.75</option><option>2.0</option><option>2.25</option><option>2.5</option><option>2.75</option><option>3.0</option><option>3.25</option><option>3.5</option><option>3.75</option><option>4.0</option><option>4.25</option><option>4.5</option><option>4.75</option><option>5.0</option><option value="5.25">5.0+</option>
+          <option value="1.5">Beginner (&lt;2.0)</option><option>2.0</option><option>2.25</option><option>2.5</option><option>2.75</option><option>3.0</option><option>3.25</option><option>3.5</option><option>3.75</option><option>4.0</option><option>4.25</option><option>4.5</option><option>4.75</option><option>5.0</option><option value="5.25">5.0+</option>
         </select>
         <button class="primary" id="addPlayerBtn">Add</button>
       </div>
@@ -634,12 +634,12 @@ body.g3-tournament-active .app > .grid{display:none!important}
   <details id="featuresHelp">
     <summary>Description of current features</summary>
     <div class="features-content">
-      <h3>NextCuatro — Generation 3 · v1.7 Alpha</h3>
+      <h3>NextCuatro — Generation 3 · v1.8 Alpha</h3>
       <p>NextCuatro supports three play modes: <strong>Mixer Play</strong>, <strong>Zoned Play</strong>, and the new <strong>Tournament Play</strong>. Choose a mode using the single <strong>Play Mode</strong> selector. Confirm the warning before switching; Mixer/Zoned player records are retained, and tournaments are stored separately.</p>
       <h3>Mixer Play</h3>
-      <p>Flexible drop-in play for changing attendance, with up to eight courts and rosters of up to 96 tested players. Choose <strong>Smart Random</strong>, <strong>Similar Skill</strong>, or <strong>Balanced Teams</strong>. Mixer includes optional skill ratings, fixed partners, sit-outs, departures and returns, fairness tracking, wins/losses, optional adaptive ratings, and a 10-, 12-, or 15-minute timer.</p>
+      <p>Flexible drop-in play for changing attendance, with up to eight courts and rosters of up to 96 tested players. Choose <strong>Smart Random</strong>, <strong>Similar Skill</strong>, or <strong>Balanced Teams</strong>. Smart Random permits unrated players; Similar Skill and Balanced Teams require ratings. Mixer includes optional adaptive ratings, fixed partners, sit-outs, departures and returns, fairness tracking, wins/losses, optional adaptive ratings, and a 10-, 12-, or 15-minute timer.</p>
       <h3>Zoned Play</h3>
-      <p>Assign courts to five skill groups: Developing (2.0–2.99), Intermediate 1 (3.0–3.49), Intermediate 2 (3.5–3.99), Advanced (4.0–4.49), and Elite (4.5+). Each zone has independent game advancement and fairness rotation. The organizer assigns available courts to zones. Adaptive ratings and the shared game timer are disabled in Zoned Play.</p>
+      <p>Assign courts to six skill groups: Beginner (below 2.0), Developing (2.0–2.99), Intermediate 1 (3.0–3.49), Intermediate 2 (3.5–3.99), Advanced (4.0–4.49), and Elite (4.5+). Each zone has independent game advancement and fairness rotation. The organizer assigns available courts to zones. Adaptive ratings and the shared game timer are disabled in Zoned Play.</p>
       <h3>Tournament Play — new in Generation 3</h3>
       <ul>
         <li>Create and save a named tournament with <strong>Number of Sessions</strong> and <strong>Games per Session</strong>; the app supports up to 16 sessions.</li>
@@ -651,7 +651,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
         <li>Substitutes can play in a registered player's place while the results remain credited to that registrant.</li>
         <li><strong>Export Tournament</strong> and <strong>Import Tournament</strong> use an Excel-compatible .xlsx workbook. These files can also be stored in Google Drive and opened in Google Sheets; this is not live Google Sheets synchronization.</li>
       </ul>
-      <p class="feature-version">NextCuatro · Generation 3 · v1.7 Alpha · Flexible. Smart. Adaptive.</p>
+      <p class="feature-version">NextCuatro · Generation 3 · v1.8 Alpha · Flexible. Smart. Adaptive.</p>
       <h3>Mixer and Zoned details</h3>
       <h3>Players &amp; availability</h3>
       <ul>
@@ -692,7 +692,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     </div>
   </details>
 </section>
-<div class="footer">NextCuatro · Generation 3 · v1.7 Alpha · © 2026 Todd Witte</div>
+<div class="footer">NextCuatro · Generation 3 · v1.8 Alpha · © 2026 Todd Witte</div>
 
 <div id="pairFairnessModal" class="nc-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pairFairnessTitle">
   <div class="nc-modal">
@@ -710,7 +710,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
 (() => {
   const STORAGE_KEY = 'nextcuatro_g2_v1_state';
   const defaultState = {
-    sessionMode:'mixer', pendingMode:null, zoneCourts:['developing','developing','int1','int1','int2','int2','advanced',null], zoneRounds:{}, zonePools:{},
+    sessionMode:'mixer', pendingMode:null, zoneCourts:['beginner','developing','developing','int1','int1','int2','advanced',null], zoneRounds:{}, zonePools:{},
     round: 0,
     courts: 4, mixerCourts:null,
     endType: 'open',
@@ -721,8 +721,8 @@ body.g3-tournament-active .app > .grid{display:none!important}
     currentRound: null
   };
   let state = load();
-  const ZONES=[{id:'developing',name:'Developing',range:'2.0–2.99',color:'#22C55E',tint:'#EAF9EE',ink:'#102A43'},{id:'int1',name:'Intermediate 1',range:'3.0–3.49',color:'#FFF176',tint:'#FFFCE6',ink:'#102A43'},{id:'int2',name:'Intermediate 2',range:'3.5–3.99',color:'#D99A00',tint:'#FFF2D6',ink:'#102A43'},{id:'advanced',name:'Advanced',range:'4.0–4.49',color:'#F97316',tint:'#FFF0E5',ink:'#102A43'},{id:'elite',name:'Elite',range:'4.5+',color:'#DC2626',tint:'#FDECEC',ink:'#fff'}];
-  const zoneFor=p=>p.skill==null?null:p.skill>=4.5?'elite':p.skill>=4?'advanced':p.skill>=3.5?'int2':p.skill>=3?'int1':p.skill>=2?'developing':null;
+  const ZONES=[{id:'beginner',name:'Beginner',range:'below 2.0',color:'#94A3B8',tint:'#F1F5F9',ink:'#102A43'},{id:'developing',name:'Developing',range:'2.0–2.99',color:'#22C55E',tint:'#EAF9EE',ink:'#102A43'},{id:'int1',name:'Intermediate 1',range:'3.0–3.49',color:'#FFF176',tint:'#FFFCE6',ink:'#102A43'},{id:'int2',name:'Intermediate 2',range:'3.5–3.99',color:'#D99A00',tint:'#FFF2D6',ink:'#102A43'},{id:'advanced',name:'Advanced',range:'4.0–4.49',color:'#F97316',tint:'#FFF0E5',ink:'#102A43'},{id:'elite',name:'Elite',range:'4.5+',color:'#DC2626',tint:'#FDECEC',ink:'#fff'}];
+  const zoneFor=p=>!Number.isFinite(p.skill)?null:p.skill>=4.5?'elite':p.skill>=4?'advanced':p.skill>=3.5?'int2':p.skill>=3?'int1':p.skill>=2?'developing':'beginner';
   const zoneName=id=>{const z=ZONES.find(z=>z.id===id);return z?`${z.name} (${z.range})`:'Unassigned'};
   const zoneColor=id=>ZONES.find(z=>z.id===id)?.color||'#94a3b8';
   const zoneTint=id=>ZONES.find(z=>z.id===id)?.tint||'#f1f5f9';
@@ -797,6 +797,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     }
     $('duplicateNotice').style.display = 'none';
     const skill = $('playerSkill').value ? Number($('playerSkill').value) : null;
+    if(isZoned() && skill===null){alert('Zoned Play requires a skill level. Select Beginner or a rating of 2.0 or higher.');$('playerSkill').focus();return;}
     state.players.push({
       id:uid(), name:raw, skill, status:'active',
       played:0, sat:0, lastSatRound:-999, joinedRound:state.round,
@@ -814,6 +815,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     const p=state.players.find(x=>x.id===id);
     if(!p) return;
     const newSkill=value===''?null:Number(value);
+    if(isZoned() && newSkill===null){alert('Zoned Play requires a skill level. Select Beginner or a rating of 2.0 or higher.');render();return;}
     p.skill=Number.isFinite(newSkill)?newSkill:null;
     // If no adaptive estimate has actually developed yet, use the newly
     // entered self-rating as its starting estimate. Preserve learned ratings.
@@ -1339,7 +1341,46 @@ body.g3-tournament-active .app > .grid{display:none!important}
     cr.adaptiveApplied=true;
   }
 
+  // G3 v1.8: mandatory ratings for skill-dependent scheduling, never guessed.
+  function unratedActive(){return state.players.filter(p=>p.status==='active'&&(isZoned()||!p.sitNext)&&!Number.isFinite(p.skill));}
+  function requireSkills(reason){
+    const missing=unratedActive();
+    if(!missing.length)return true;
+    showRatingBatch(missing,reason);
+    return false;
+  }
+  function showRatingBatch(missing,reason){
+    const existing=document.getElementById('g3RatingOverlay');if(existing)existing.remove();
+    const overlay=document.createElement('div');overlay.id='g3RatingOverlay';
+    overlay.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.65);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px';
+    const panel=document.createElement('div');panel.style.cssText='background:white;color:#102a43;border-radius:14px;padding:22px;width:min(560px,100%);max-height:90vh;overflow:auto;box-shadow:0 12px 40px #0004';
+    const title=document.createElement('h2');title.textContent='Assign skill levels';panel.appendChild(title);
+    const explanation=document.createElement('p');explanation.textContent=`${reason} requires a skill level for every available player. ${missing.length} player(s) need a selection. Unrated does not mean Beginner.`;panel.appendChild(explanation);
+    const values=['','1.5','2.0','2.25','2.5','2.75','3.0','3.25','3.5','3.75','4.0','4.25','4.5','4.75','5.0','5.25'];
+    const inputs=[];
+    for(const p of missing){const line=document.createElement('label');line.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:10px;margin:9px 0';
+      const name=document.createElement('span');name.textContent=p.name;line.appendChild(name);
+      const select=document.createElement('select');select.style.cssText='max-width:190px';
+      for(const v of values){const option=document.createElement('option');option.value=v;option.textContent=v===''?'Select skill':v==='1.5'?'Beginner (<2.0)':v==='5.25'?'5.0+':v;select.appendChild(option)}
+      line.appendChild(select);panel.appendChild(line);inputs.push({p,select});}
+    const feedback=document.createElement('p');feedback.style.color='#b91c1c';panel.appendChild(feedback);
+    const actions=document.createElement('div');actions.style.cssText='display:flex;justify-content:flex-end;gap:10px;margin-top:12px';
+    const cancel=document.createElement('button');cancel.textContent='Cancel';cancel.onclick=()=>overlay.remove();actions.appendChild(cancel);
+    const apply=document.createElement('button');apply.textContent='Save skill levels';apply.className='primary';
+    apply.onclick=()=>{if(inputs.some(x=>!x.select.value)){feedback.textContent='Choose a skill for every listed player.';return;}
+      for(const {p,select} of inputs)setSkillSilently(p,Number(select.value));
+      save();overlay.remove();render();};actions.appendChild(apply);panel.appendChild(actions);overlay.appendChild(panel);document.body.appendChild(overlay);
+  }
+  function setSkillSilently(p,skill){
+    p.skill=skill;
+    if((p.resultGames||0)<=3||!Number.isFinite(p.adaptiveRating))p.adaptiveRating=skill;
+    if(isZoned()){
+      if(!currentPlayingIds().has(p.id))moveToZone(p,zoneFor(p));
+      else p.pendingZone=zoneFor(p);
+    }
+  }
   function makeRound(skipPairPrompt=false){
+    if($('modeSelect').value!=='smart'&&!requireSkills($('modeSelect').value==='similar'?'Similar Skill':'Balanced Teams'))return;
     pairSeparationPaused=false;
     if(state.currentRound){
       finalizeAdaptiveResults();
@@ -1475,8 +1516,8 @@ body.g3-tournament-active .app > .grid{display:none!important}
       row.className='player-row '+(p.sitNext?'temp ':'')+(p.status==='leaving'?'leaving':'');
       if(grouped){row.style.background=zoneTint(zid);row.style.borderLeft=`4px solid ${zoneColor(zid)}`;}
       const partner=state.players.find(x=>x.id===p.fixedPartnerId);
-      const skillValues=['','1.0','1.25','1.5','1.75','2.0','2.25','2.5','2.75','3.0','3.25','3.5','3.75','4.0','4.25','4.5','4.75','5.0','5.25'];
-      const skillOptions=skillValues.map(v=>`<option value="${v}" ${(v===''&&p.skill==null)||(v!==''&&Number(v)===p.skill)?'selected':''}>${v===''?'Unrated':(v==='5.25'?'5.0+':v)}</option>`).join('');
+      const skillValues=['','1.5','2.0','2.25','2.5','2.75','3.0','3.25','3.5','3.75','4.0','4.25','4.5','4.75','5.0','5.25'];
+      const skillOptions=skillValues.map(v=>`<option value="${v}" ${(v===''&&p.skill==null)||(v!==''&&(Number(v)===p.skill||(v==='1.5'&&p.skill!=null&&p.skill<2)))?'selected':''}>${v===''?'Unrated':(v==='1.5'?'Beginner':v==='5.25'?'5.0+':v)}</option>`).join('');
       const pairOptions=visible.filter(x=>x.id!==p.id && !x.sitNext).map(x=>
         `<option value="${x.id}" ${p.fixedPartnerId===x.id?'selected':''}>Pair: ${escapeHtml(x.name)}</option>`).join('');
       row.innerHTML=`
@@ -1666,6 +1707,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
   }
   function zoneAdvance(id){
     if(!isZoned())return;
+    if(!requireSkills('Zoned Play'))return;
     const courtNumbers=state.zoneCourts.map((v,i)=>v===id?i+1:null).filter(Boolean);
     if(!courtNumbers.length)return alert('Assign at least one court to this zone first.');
     const zr=state.zoneRounds[id]||(state.zoneRounds[id]={round:0,currentRound:null});
@@ -1720,7 +1762,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     const area=$('zoneArea');area.innerHTML='';
     const select=document.createElement('div');select.className='g2-mobile-zone';select.innerHTML='<label for="mobileZoneSelect">View skill zone</label><select id="mobileZoneSelect"></select>';
     const pick=select.querySelector('select');pick.innerHTML=ZONES.map(z=>`<option value="${z.id}" ${state.mobileZone===z.id?'selected':''}>${z.name} (${z.range})</option>`).join('');
-    if(!state.mobileZone)state.mobileZone='developing';pick.value=state.mobileZone;pick.onchange=e=>{state.mobileZone=e.target.value;save();renderZones()};area.appendChild(select);
+    if(!state.mobileZone||!ZONES.some(z=>z.id===state.mobileZone))state.mobileZone='beginner';pick.value=state.mobileZone;pick.onchange=e=>{state.mobileZone=e.target.value;save();renderZones()};area.appendChild(select);
     for(const z of ZONES){
       const numbers=state.zoneCourts.map((v,i)=>v===z.id?i+1:null).filter(Boolean);
       if(!numbers.length)continue;
@@ -1734,7 +1776,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
       }else courtBox.innerHTML='<div class="subtle">Ready for this zone’s first rotation.</div>';
       box.querySelector('.g2-next').onclick=()=>zoneAdvance(z.id);area.appendChild(box);
     }
-    const unassigned=state.players.filter(p=>p.status==='active'&&!currentZone(p));if(unassigned.length){const b=document.createElement('div');b.className='g2-unassigned';b.textContent='Unassigned (enter a rating of 2.0 or higher): '+unassigned.map(p=>p.name).join(', ');area.appendChild(b)}
+    const unassigned=state.players.filter(p=>p.status==='active'&&!currentZone(p));if(unassigned.length){const b=document.createElement('div');b.className='g2-unassigned';b.textContent='Unrated (select Beginner or a rating): '+unassigned.map(p=>p.name).join(', ');area.appendChild(b)}
   }
   function escapeHtml(s){
     return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
@@ -1802,6 +1844,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     if(isZoned()){state.zoneRounds={};for(const p of state.players)moveToZone(p,zoneFor(p))}
     else state.currentRound=null;
     save();render();
+    if(isZoned())requireSkills('Zoned Play');
   };
   $('addPlayerBtn').onclick=addPlayer;
   $('playerName').addEventListener('keydown',e=>{if(e.key==='Enter') addPlayer();});
@@ -1810,7 +1853,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
   $('timerResetBtn').onclick=resetTimer;
   $('timerMinutes').onchange=resetTimer;
   $('courtCount').onchange=()=>{state.courts=state.mixerCourts.length;save();render();};
-  $('modeSelect').onchange=()=>{state.mode=$('modeSelect').value;save();};
+  $('modeSelect').onchange=()=>{state.mode=$('modeSelect').value;save();if(state.mode!=='smart')requireSkills(state.mode==='similar'?'Similar Skill':'Balanced Teams');};
   $('sessionEndType').onchange=()=>{state.endType=$('sessionEndType').value;save();renderReservation();};
   $('endTime').onchange=()=>{state.endTime=$('endTime').value;save();renderReservation();};
 
