@@ -443,7 +443,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
 .g3-pill{background:#eef8df;border-radius:9px;padding:6px 10px;font-weight:700;color:#123b5d}
 @media(max-width:640px){.g3-panel{padding:12px}.g3-switch{padding:0 6px}.g3-courts{grid-template-columns:1fr}}
 
-/* G3 v1.8.1 Alpha — unified high-contrast court presentation (visual only) */
+/* G3 v1.8.2 Alpha — unified high-contrast court presentation (visual only) */
 :root{--nc-court-navy:#092f68;--nc-court-green:#087b2a;--nc-player-blue:#123d79;--nc-serve-gray:#697889}
 #courtArea .courts{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important}
 .g2-zone-courts{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important}
@@ -478,8 +478,8 @@ body.g3-tournament-active .app > .grid{display:none!important}
   #courtArea .courts,.g2-zone-courts,.g3-courts{grid-template-columns:1fr!important}
   #courtArea .court,.g2-zone .court,.g3-court{padding:11px 13px!important}
 }
-/* G3 v1.8.1 — tournament development status, visible only on tournament page */
-.g3-development-notice{margin:0 0 14px;padding:15px 18px;border:1px solid #cbd5e1;border-left:5px solid #64748b;border-radius:12px;background:#f8fafc;color:#243449}
+/* G3 v1.8.2 — tournament development status, visible only on tournament page */
+.g3-development-notice{margin:0 0 14px;padding:15px 18px;border:2px solid #ea8600;border-left:8px solid #d66b00;border-radius:12px;background:#ffe29a;color:#542900}
 .g3-development-notice strong{display:block;font-size:1.03rem;font-weight:750}
 .g3-development-notice p{margin:5px 0 0;line-height:1.5;font-size:.93rem}
 </style>
@@ -503,7 +503,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
   <section class="g3-switch card panel"><strong>Play Mode</strong><select id="g3PlayType" aria-label="Play type"><option value="mixer">Open</option><option value="zoned">Zoned</option><option value="tournament">Tournament</option></select></section>
 <section id="g3Tournament" class="g3-wrap" aria-label="Tournament">
 <div class="g3-development-notice" role="status" aria-label="Tournament mode development status">
-<strong>Tournament Mode — Under Development</strong>
+<strong>⚠ Tournament Mode — Under Construction</strong>
 <p>This play mode is still under development. Some features may be incomplete or subject to change.</p>
 </div>
 <div class="card g3-panel"><h2>Tournament Play</h2><div class="g3-fields">
@@ -642,8 +642,9 @@ body.g3-tournament-active .app > .grid{display:none!important}
   <details id="featuresHelp">
     <summary>Description of current features</summary>
     <div class="features-content">
-      <h3>NextCuatro — Generation 3 · v1.8.1 Alpha</h3>
+      <h3>NextCuatro — Generation 3 · v1.8.2 Alpha</h3>
       <p>NextCuatro supports three play modes: <strong>Open</strong>, <strong>Zoned</strong>, and <strong>Tournament</strong>. Choose a mode using the single <strong>Play Mode</strong> selector. Confirm the warning before switching; Mixer/Zoned player records are retained, and tournaments are stored separately.</p>
+      <h3>New in v1.8.2 Alpha</h3><p>All app alerts and confirmations now appear within NextCuatro without the browser address heading. Tournament mode has a prominent amber construction notice.</p>
       <h3>Open</h3>
       <p>Flexible drop-in play for changing attendance, with up to eight courts and rosters of up to 96 tested players. Choose <strong>Smart Random</strong>, <strong>Similar Skill</strong>, or <strong>Balanced Teams</strong>. Smart Random permits unrated players; Similar Skill and Balanced Teams require ratings. Mixer includes optional adaptive ratings, fixed partners, sit-outs, departures and returns, fairness tracking, wins/losses, optional adaptive ratings, and a 10-, 12-, or 15-minute timer.</p>
       <h3>Zoned</h3>
@@ -659,7 +660,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
         <li>Substitutes can play in a registered player's place while the results remain credited to that registrant.</li>
         <li><strong>Export Tournament</strong> and <strong>Import Tournament</strong> use an Excel-compatible .xlsx workbook. These files can also be stored in Google Drive and opened in Google Sheets; this is not live Google Sheets synchronization.</li>
       </ul>
-      <p class="feature-version">NextCuatro · Generation 3 · v1.8.1 Alpha · Flexible. Smart. Adaptive.</p>
+      <p class="feature-version">NextCuatro · Generation 3 · v1.8.2 Alpha · Flexible. Smart. Adaptive.</p>
       <h3>Open and Zoned details</h3>
       <h3>Players &amp; availability</h3>
       <ul>
@@ -700,7 +701,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     </div>
   </details>
 </section>
-<div class="footer">NextCuatro · Generation 3 · v1.8.1 Alpha · © 2026 Todd Witte</div>
+<div class="footer">NextCuatro · Generation 3 · v1.8.2 Alpha · © 2026 Todd Witte</div>
 
 <div id="pairFairnessModal" class="nc-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pairFairnessTitle">
   <div class="nc-modal">
@@ -714,6 +715,32 @@ body.g3-tournament-active .app > .grid{display:none!important}
   </div>
 </div>
 
+
+<style>
+#nc-message-dialog{border:0;border-radius:16px;padding:24px;max-width:440px;width:calc(100% - 40px);box-sizing:border-box;box-shadow:0 16px 60px #0005;color:#172b36;background:#fff;font-family:inherit}
+#nc-message-dialog::backdrop{background:#0007}
+#nc-message-dialog h2{font-size:20px;margin:0 0 16px}
+#nc-message-text{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5;margin:0 0 24px;max-height:60vh;overflow:auto}
+#nc-message-actions{display:flex;justify-content:flex-end;gap:12px}
+#nc-message-actions button{padding:10px 20px;border-radius:8px;border:1px solid #b9c8cd;font:inherit;cursor:pointer}
+#nc-message-ok{background:#176d5c;color:white}
+</style>
+<dialog id="nc-message-dialog" aria-labelledby="nc-message-title" aria-describedby="nc-message-text">
+<h2 id="nc-message-title">NextCuatro</h2><p id="nc-message-text"></p>
+<div id="nc-message-actions"><button type="button" id="nc-message-cancel">Cancel</button><button type="button" id="nc-message-ok">OK</button></div>
+</dialog>
+<script>
+(()=>{
+ const dialog=document.getElementById('nc-message-dialog'),message=document.getElementById('nc-message-text'),ok=document.getElementById('nc-message-ok'),cancel=document.getElementById('nc-message-cancel');
+ const queue=[];let active=null;
+ function show(){if(active||!queue.length)return;active=queue.shift();active.focus=document.activeElement;message.textContent=active.message;cancel.hidden=!active.confirmation;dialog.showModal();(active.confirmation?cancel:ok).focus();}
+ function finish(value){if(!active)return;const item=active;active=null;dialog.close();if(item.focus?.isConnected)item.focus.focus();item.resolve(value);show();}
+ ok.addEventListener('click',()=>finish(true));cancel.addEventListener('click',()=>finish(false));
+ dialog.addEventListener('cancel',e=>{e.preventDefault();finish(false)});
+ function ask(message,confirmation){return new Promise(resolve=>{queue.push({message:String(message),confirmation,resolve});show()})}
+ window.ncAlert=message=>ask(message,false);window.ncConfirm=message=>ask(message,true);
+})();
+</script>
 <script>
 (() => {
   const STORAGE_KEY = 'nextcuatro_g2_v1_state';
@@ -791,7 +818,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
   function warnIfBeyondTestedRange(){
     if(activeRosterCount()<=TESTED_ACTIVE_PLAYERS || state.over96WarningShown) return;
     state.over96WarningShown=true;
-    alert('NextCuatro is designed for up to 96 active players across eight courts. Larger groups are allowed, but performance may vary.');
+    ncAlert('NextCuatro is designed for up to 96 active players across eight courts. Larger groups are allowed, but performance may vary.');
   }
 
   function addPlayer(){
@@ -805,7 +832,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     }
     $('duplicateNotice').style.display = 'none';
     const skill = $('playerSkill').value ? Number($('playerSkill').value) : null;
-    if(isZoned() && skill===null){alert('Zoned Play requires a skill level. Select Beginner or a rating of 2.0 or higher.');$('playerSkill').focus();return;}
+    if(isZoned() && skill===null){ncAlert('Zoned Play requires a skill level. Select Beginner or a rating of 2.0 or higher.');$('playerSkill').focus();return;}
     state.players.push({
       id:uid(), name:raw, skill, status:'active',
       played:0, sat:0, lastSatRound:-999, joinedRound:state.round,
@@ -823,7 +850,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     const p=state.players.find(x=>x.id===id);
     if(!p) return;
     const newSkill=value===''?null:Number(value);
-    if(isZoned() && newSkill===null){alert('Zoned Play requires a skill level. Select Beginner or a rating of 2.0 or higher.');render();return;}
+    if(isZoned() && newSkill===null){ncAlert('Zoned Play requires a skill level. Select Beginner or a rating of 2.0 or higher.');render();return;}
     p.skill=Number.isFinite(newSkill)?newSkill:null;
     // If no adaptive estimate has actually developed yet, use the newly
     // entered self-rating as its starting estimate. Preserve learned ratings.
@@ -880,7 +907,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     if(partnerId && isZoned()){
       const q=state.players.find(x=>x.id===partnerId);
       if(q && currentZone(q)!==currentZone(p)){
-        alert('Fixed partners must belong to the same skill zone. Adjust their entered ratings first.');
+        ncAlert('Fixed partners must belong to the same skill zone. Adjust their entered ratings first.');
         save();render();return;
       }
     }
@@ -1402,7 +1429,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     const voluntarySitters=state.players.filter(p=>(p.status==='active'||p.status==='leaving') && p.sitNext);
     const actives=activePlayers();
     if(actives.length<4){
-      alert('You need at least 4 active players to create a round.');
+      ncAlert('You need at least 4 active players to create a round.');
       return;
     }
     const fullCourts=Math.min(state.mixerCourts.length, Math.floor(actives.length/4));
@@ -1424,7 +1451,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     const selected=chooseParticipants(eligible,capacity,state.mode);
     const playing=selected.playing, waiting=[...selected.waiting,...(forcedSitter?[forcedSitter]:[])];
     if(playing.length!==capacity){
-      alert('Cannot fill all courts while keeping fixed pairs together. Please adjust courts or pairings.');
+      ncAlert('Cannot fill all courts while keeping fixed pairs together. Please adjust courts or pairings.');
       return;
     }
     // Voluntary one-round sitters are displayed with everyone sitting this round,
@@ -1437,7 +1464,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     else courts=buildSmart(playing);
 
     if(courts.length!==fullCourts || courts.some(c=>!c || c.length!==2 || c.some(t=>!t || t.length!==2))){
-      alert('Unable to form valid teams with the current pairings. Try adjusting pairings or court count.');
+      ncAlert('Unable to form valid teams with the current pairings. Try adjusting pairings or court count.');
       return;
     }
     // Smart Random and Balanced Teams rotate court locations for social variety.
@@ -1550,8 +1577,8 @@ body.g3-tournament-active .app > .grid{display:none!important}
       row.querySelector('[data-action="pair"]').onchange=e=>setPair(p.id,e.target.value||null);
      
       row.querySelector('[data-action="adaptive"]').onclick=()=>{if(isZoned()||!Number.isFinite(p.adaptiveRating))return;p.useAdaptive=p.useAdaptive!==true;save();render();};
-      row.querySelector('[data-action="left"]').onclick=()=>{
-        if(confirm(`Leave NextCuatro?\n\nRemove ${p.name} from future games in both modes? Their session statistics will be saved if they return using Restore.\n\nChoose Cancel to stay in the session.`)) setStatus(p.id,'left');
+      row.querySelector('[data-action="left"]').onclick=async ()=>{
+        if(await ncConfirm(`Leave NextCuatro?\n\nRemove ${p.name} from future games in both modes? Their session statistics will be saved if they return using Restore.\n\nChoose Cancel to stay in the session.`)) setStatus(p.id,'left');
       };
       list.appendChild(row);
     }
@@ -1673,7 +1700,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
       btn.textContent='Court '+n;btn.className=selected?'selected':'';
       btn.setAttribute('aria-pressed',String(selected));
       btn.onclick=()=>{
-        if(selected && state.mixerCourts.length===1){alert('Select at least one court.');return;}
+        if(selected && state.mixerCourts.length===1){ncAlert('Select at least one court.');return;}
         state.mixerCourts=selected?state.mixerCourts.filter(x=>x!==n):[...state.mixerCourts,n].sort((a,b)=>a-b);
         state.courts=state.mixerCourts.length;save();render();
       };
@@ -1717,20 +1744,20 @@ body.g3-tournament-active .app > .grid{display:none!important}
     if(!isZoned())return;
     if(!requireSkills('Zoned Play'))return;
     const courtNumbers=state.zoneCourts.map((v,i)=>v===id?i+1:null).filter(Boolean);
-    if(!courtNumbers.length)return alert('Assign at least one court to this zone first.');
+    if(!courtNumbers.length)return ncAlert('Assign at least one court to this zone first.');
     const zr=state.zoneRounds[id]||(state.zoneRounds[id]={round:0,currentRound:null});
     const players=state.players.filter(p=>p.status==='active'&&currentZone(p)===id);
     const sitters=players.filter(p=>p.sitNext);
     const eligible=players.filter(p=>!p.sitNext);
     const fullCourts=Math.min(courtNumbers.length,Math.floor(eligible.length/4));
-    if(!fullCourts)return alert('This zone needs at least four available players.');
+    if(!fullCourts)return ncAlert('This zone needs at least four available players.');
     // Fixed teams must be scheduled together; if capacity is incompatible, do not change any data.
-    for(const p of eligible){if(p.fixedPartnerId&&!eligible.some(q=>q.id===p.fixedPartnerId))return alert('A fixed partner is unavailable or in another zone. Unpair or correct the players before rotating.');}
+    for(const p of eligible){if(p.fixedPartnerId&&!eligible.some(q=>q.id===p.fixedPartnerId))return ncAlert('A fixed partner is unavailable or in another zone. Unpair or correct the players before rotating.');}
     const selected=chooseParticipants(eligible,fullCourts*4,state.mode);
-    if(selected.playing.length!==fullCourts*4)return alert('Cannot fill courts while keeping fixed pairs together. Adjust courts or pairings.');
+    if(selected.playing.length!==fullCourts*4)return ncAlert('Cannot fill courts while keeping fixed pairs together. Adjust courts or pairings.');
     let courts;
-    try{courts=state.mode==='similar'?buildSimilar(selected.playing):state.mode==='balanced'?buildBalanced(selected.playing):buildSmart(selected.playing)}catch(e){alert('Unable to create a valid rotation: '+e.message);return}
-    if(courts.length!==fullCourts||courts.some(c=>c.length!==2||c.some(t=>t.length!==2)))return alert('Unable to create valid teams.');
+    try{courts=state.mode==='similar'?buildSimilar(selected.playing):state.mode==='balanced'?buildBalanced(selected.playing):buildSmart(selected.playing)}catch(e){ncAlert('Unable to create a valid rotation: '+e.message);return}
+    if(courts.length!==fullCourts||courts.some(c=>c.length!==2||c.some(t=>t.length!==2)))return ncAlert('Unable to create valid teams.');
     if(zr.currentRound){const original=state.currentRound;state.currentRound=zr.currentRound;finalizeAdaptiveResults();state.currentRound=original;}
     zr.round++;
     for(const p of sitters){p.sitNext=false;p.sat++;p.lastSatRound=zr.round;p.playStreak=0}
@@ -1759,7 +1786,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
         // A reassignment may be made after the affected rounds are finished and cleared.
         const inProgress=old && state.zoneRounds[old]?.currentRound;
         if(inProgress && (inProgress.courtNumbers||[]).includes(i+1)){
-          alert('Finish the current games in the affected skill zones before changing this court assignment. No changes were made.');
+          ncAlert('Finish the current games in the affected skill zones before changing this court assignment. No changes were made.');
           render();return;
         }
         state.zoneCourts[i]=next;
@@ -1840,9 +1867,9 @@ body.g3-tournament-active .app > .grid{display:none!important}
     state.pendingMode=wanted;save();render();
   };
   $('cancelMode').onclick=()=>{state.pendingMode=null;save();render()};
-  $('applyMode').onclick=()=>{
+  $('applyMode').onclick=async ()=>{
     if(!state.pendingMode)return;
-    if(!window.__g3ModeApproved && !confirm('Confirm all current games have finished. Apply the mode change now?'))return;
+    if(!window.__g3ModeApproved && !(await ncConfirm('Confirm all current games have finished. Apply the mode change now?')))return;
     window.__g3ModeApproved=false;
     if(state.sessionMode==='zoned'){
       for(const zr of Object.values(state.zoneRounds||{})){if(zr.currentRound){const original=state.currentRound;state.currentRound=zr.currentRound;finalizeAdaptiveResults();state.currentRound=original}}
@@ -1865,8 +1892,8 @@ body.g3-tournament-active .app > .grid{display:none!important}
   $('sessionEndType').onchange=()=>{state.endType=$('sessionEndType').value;save();renderReservation();};
   $('endTime').onchange=()=>{state.endTime=$('endTime').value;save();renderReservation();};
 
-  $('resetFairnessBtn').onclick=()=>{
-    if(!confirm('Reset Session Fairness?\n\nReset all Session Fairness statistics to zero?')) return;
+  $('resetFairnessBtn').onclick=async ()=>{
+    if(!(await ncConfirm('Reset Session Fairness?\n\nReset all Session Fairness statistics to zero?'))) return;
     // Only statistics represented in the Session Fairness table are cleared.
     // Keep player identity, entered skill, adaptive ON/OFF preference, pairs,
     // availability, court allocations, and active games untouched.
@@ -1885,9 +1912,9 @@ body.g3-tournament-active .app > .grid{display:none!important}
     }
     save();render();
   };
-  $('resetBtn').onclick=()=>{
-    if(confirm('This will clear all players and data to start a new session.')){
-      state=structuredClone(defaultState); save(); render();
+  $('resetBtn').onclick=async ()=>{
+    if(await ncConfirm('This will clear all players and data to start a new session.')){
+      state=structuredClone(defaultState); state.mixerCourts=[1,2,3,4]; save(); render();
     }
   };
 
@@ -1913,7 +1940,7 @@ function resetTimer(){stopTimer();timerLeft=t()?.format==='timed'?t().gameValue*
 // G3 v1.3: route the single Play Mode selector through the original G2
 // pending-mode conversion. The G2 controls are hidden, so G3 must approve
 // and apply the change explicitly; otherwise the app stays in Mixer.
-function switchMode(mode){
+async function switchMode(mode){
  const select=$('g3PlayType');
  const oldMode=document.body.classList.contains('g3-tournament-active')?'tournament':$('sessionMode').value;
  if(mode===oldMode)return;
@@ -1922,7 +1949,7 @@ function switchMode(mode){
  const warning=changingTournament
   ? 'Switch to '+(mode==='tournament'?'Tournament':mode==='zoned'?'Zoned':'Open')+'?\n\nYour existing tournament is saved separately. Finish any current games and export important tournament data before changing modes.'
   : 'Switch from '+(oldMode==='zoned'?'Zoned':'Open')+' to '+(mode==='zoned'?'Zoned':'Open')+'?\n\nConfirm that current games have finished. Player records will be kept, but the court assignments will be converted for the new mode.';
- if(!confirm(warning)){select.value=oldMode;return;}
+ if(!(await ncConfirm(warning))){select.value=oldMode;return;}
  if(mode!=='tournament' && $('sessionMode').value!==mode){
    $('sessionMode').value=mode;
    $('sessionMode').dispatchEvent(new Event('change'));
@@ -1953,9 +1980,9 @@ function gameOptions(){const sel=$('g3GameValue');sel.innerHTML='';const timed=$
 $('g3Format').onchange=gameOptions;gameOptions();
 $('g3New').onclick=()=>{current=null;persist();draft();note('Ready to create a new tournament. Existing tournaments remain saved in this browser.');};
 $('g3Saved').onchange=e=>{if(!e.target.value)return;current=e.target.value;persist();render();note('Saved tournament opened.');};
-$('g3Create').onclick=()=>{const name=$('g3Name').value.trim();if(!name)return note('Enter a tournament name.',true);
+$('g3Create').onclick=async ()=>{const name=$('g3Name').value.trim();if(!name)return note('Enter a tournament name.',true);
  if(Object.values(tournaments).some(x=>x.name.toLowerCase()===name.toLowerCase()))return note('A tournament with that name already exists. Import its workbook or choose another name.',true);
- if(t()&&!confirm('Create a new tournament? The current tournament will remain saved in this browser and can be restored from its Excel export.'))return;
+ if(t()&&!(await ncConfirm('Create a new tournament? The current tournament will remain saved in this browser and can be restored from its Excel export.')))return;
  const id=uid();tournaments[id]={id,name,nights:+$('g3Nights').value,rounds:+$('g3Rounds').value,format:$('g3Format').value,gameValue:+$('g3GameValue').value,ranking:$('g3Ranking').value,roster:[],night:0,round:0,locked:false,games:[],activeRound:null,finished:false,created:new Date().toISOString()};current=id;persist();render();note('Tournament created. Add solo players or fixed pairs, then lock the roster.');};
 function add(names){const a=t();if(!a)return note('Create a tournament first.',true);if(a.locked)return note('Roster is locked.',true);
  names=names.map(x=>x.trim().replace(/\s+/g,' '));if(names.some(x=>!x))return note('Enter all player names.',true);
@@ -2028,7 +2055,7 @@ $('g3FinishNight').onclick=()=>{const a=t();if(!a||a.activeRound||a.round!==a.ro
  else note(`Session ${a.night} completed. Export the tournament workbook before the next session.`);
  a.nightComplete=true;persist();render();};
 $('g3NextNight').onclick=()=>{const a=t();if(!a||!a.nightComplete||a.finished)return;a.night++;a.round=0;a.nightComplete=false;persist();nextRound();};
-$('g3Reset').onclick=()=>{const a=t();if(a&&confirm(`Permanently delete tournament "${a.name}" from this browser? Export first if you want to preserve it.`)){delete tournaments[current];current=null;persist();render();note('Tournament deleted.');}};
+$('g3Reset').onclick=async ()=>{const a=t();if(a&&await ncConfirm(`Permanently delete tournament "${a.name}" from this browser? Export first if you want to preserve it.`)){delete tournaments[current];current=null;persist();render();note('Tournament deleted.');}};
 function draft(){for(const id of ['g3Name','g3Nights','g3Rounds','g3Format','g3GameValue','g3Ranking'])$(id).disabled=false;$('g3Name').value='';$('g3Create').textContent='Create tournament';$('g3Active').hidden=true;refreshSaved();}
 function refreshSaved(){const sel=$('g3Saved');sel.innerHTML='<option value="">Open saved tournament…</option>';for(const x of Object.values(tournaments))sel.add(new Option(x.name,x.id));sel.value=current||'';}
 function render(){refreshSaved();const a=t();$('g3Active').hidden=!a;if(!a){draft();return;}
@@ -2081,7 +2108,7 @@ async function unzipFile(buf,target){const b=new Uint8Array(buf);let pos=0;while
  if(flags&8)throw Error('Unsupported ZIP data descriptor');if(start+size>b.length)throw Error('Truncated Excel file');if(name===target){const data=b.slice(start,start+size);if(method===0)return unutf(data);if(method===8&&typeof DecompressionStream!=='undefined'){const stream=new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'));return await new Response(stream).text();}throw Error('Unsupported Excel compression');}pos=start+size;}throw Error('MachineData worksheet missing. Import a NextCuatro G3 export.');}
 $('g3Import').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const data=await unzipFile(await file.arrayBuffer(),'xl/worksheets/sheet7.xml'),doc=new DOMParser().parseFromString(data,'application/xml');if(doc.querySelector('parsererror'))throw Error('Invalid worksheet XML');const rows=[...doc.getElementsByTagName('row')];const text=rows[2]?.getElementsByTagName('t')[0]?.textContent;if(!text)throw Error('No tournament state found');const a=JSON.parse(text);
  if(!a||!a.id||!a.name||!Array.isArray(a.roster)||!Array.isArray(a.games)||a.roster.length>32||a.nights>16||a.rounds>20||!['wins','diff'].includes(a.ranking))throw Error('Invalid tournament data');
- if(t()&&!confirm(`Import "${a.name}"? It will become the active tournament. Existing tournaments remain in this browser.`))return;
+ if(t()&&!(await ncConfirm(`Import "${a.name}"? It will become the active tournament. Existing tournaments remain in this browser.`)))return;
  tournaments[a.id]=a;current=a.id;persist();render();resetTimer();note(`Imported ${a.name}, session ${a.night}. All game history and standings restored.`);
  }catch(err){note('Import failed: '+err.message,true);}finally{e.target.value='';}};
 render();
