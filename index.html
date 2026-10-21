@@ -443,7 +443,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
 .g3-pill{background:#eef8df;border-radius:9px;padding:6px 10px;font-weight:700;color:#123b5d}
 @media(max-width:640px){.g3-panel{padding:12px}.g3-switch{padding:0 6px}.g3-courts{grid-template-columns:1fr}}
 
-/* G3 v1.6 Alpha — unified high-contrast court presentation (visual only) */
+/* G3 v1.7 Alpha — unified high-contrast court presentation (visual only) */
 :root{--nc-court-navy:#092f68;--nc-court-green:#087b2a;--nc-player-blue:#123d79;--nc-serve-gray:#697889}
 #courtArea .courts{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important}
 .g2-zone-courts{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important}
@@ -634,7 +634,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
   <details id="featuresHelp">
     <summary>Description of current features</summary>
     <div class="features-content">
-      <h3>NextCuatro — Generation 3 · v1.6 Alpha</h3>
+      <h3>NextCuatro — Generation 3 · v1.7 Alpha</h3>
       <p>NextCuatro supports three play modes: <strong>Mixer Play</strong>, <strong>Zoned Play</strong>, and the new <strong>Tournament Play</strong>. Choose a mode using the single <strong>Play Mode</strong> selector. Confirm the warning before switching; Mixer/Zoned player records are retained, and tournaments are stored separately.</p>
       <h3>Mixer Play</h3>
       <p>Flexible drop-in play for changing attendance, with up to eight courts and rosters of up to 96 tested players. Choose <strong>Smart Random</strong>, <strong>Similar Skill</strong>, or <strong>Balanced Teams</strong>. Mixer includes optional skill ratings, fixed partners, sit-outs, departures and returns, fairness tracking, wins/losses, optional adaptive ratings, and a 10-, 12-, or 15-minute timer.</p>
@@ -651,7 +651,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
         <li>Substitutes can play in a registered player's place while the results remain credited to that registrant.</li>
         <li><strong>Export Tournament</strong> and <strong>Import Tournament</strong> use an Excel-compatible .xlsx workbook. These files can also be stored in Google Drive and opened in Google Sheets; this is not live Google Sheets synchronization.</li>
       </ul>
-      <p class="feature-version">NextCuatro · Generation 3 · v1.6 Alpha · Flexible. Smart. Adaptive.</p>
+      <p class="feature-version">NextCuatro · Generation 3 · v1.7 Alpha · Flexible. Smart. Adaptive.</p>
       <h3>Mixer and Zoned details</h3>
       <h3>Players &amp; availability</h3>
       <ul>
@@ -692,7 +692,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     </div>
   </details>
 </section>
-<div class="footer">NextCuatro · Generation 3 · v1.6 Alpha · © 2026 Todd Witte</div>
+<div class="footer">NextCuatro · Generation 3 · v1.7 Alpha · © 2026 Todd Witte</div>
 
 <div id="pairFairnessModal" class="nc-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pairFairnessTitle">
   <div class="nc-modal">
@@ -895,6 +895,23 @@ body.g3-tournament-active .app > .grid{display:none!important}
   function incrementMap(obj,key){ obj[key]=(obj[key]||0)+1; }
   function partnerCount(a,b){ return a.partners[b.id] || 0; }
   function opponentCount(a,b){ return a.opponents[b.id] || 0; }
+
+  // G3 v1.7: first-serve selection is independent of matchmaking.
+  // Both players on each side share the serving/receiving credit.
+  function orientFirstServe(courts){
+    return courts.map(pairing=>{
+      const [[a,b],[c,d]]=pairing;
+      const first=[a,b],second=[c,d];
+      const imbalance=team=>team.reduce((sum,p)=>sum+(p.serveFirst||0)-(p.receiveFirst||0),0);
+      const delta=imbalance(first)-imbalance(second);
+      // Logistic weighting avoids deterministic alternation while strongly discouraging streaks.
+      const pFirst=1/(1+Math.exp(Math.max(-20,Math.min(20,delta*0.85))));
+      const oriented=Math.random()<pFirst?[first,second]:[second,first];
+      oriented[0].forEach(p=>p.serveFirst=(p.serveFirst||0)+1);
+      oriented[1].forEach(p=>p.receiveFirst=(p.receiveFirst||0)+1);
+      return oriented;
+    });
+  }
 
   function shuffle(arr){
     const a=[...arr];
@@ -1423,6 +1440,8 @@ body.g3-tournament-active .app > .grid{display:none!important}
       if(state.temporaryPair.remaining===0) state.temporaryPair=null;
     }
 
+    courts=orientFirstServe(courts);
+
     state.currentRound = {
       number:state.round,
       courts:courts.map(pair=>pair.map(team=>team.map(p=>p.id))),
@@ -1667,6 +1686,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     for(const p of sitters){p.sitNext=false;p.sat++;p.lastSatRound=zr.round;p.playStreak=0}
     for(const p of selected.waiting){p.sat++;p.lastSatRound=zr.round;p.playStreak=0}
     for(const [[a,b],[c,d]] of courts){for(const p of [a,b,c,d]){p.played++;p.firstGamePriority=false;p.playStreak=(p.playStreak||0)+1}incrementMap(a.partners,b.id);incrementMap(b.partners,a.id);incrementMap(c.partners,d.id);incrementMap(d.partners,c.id);for(const x of [a,b])for(const y of [c,d]){incrementMap(x.opponents,y.id);incrementMap(y.opponents,x.id)}}
+    courts=orientFirstServe(courts);
     zr.currentRound={number:zr.round,courts:courts.map(pair=>pair.map(team=>team.map(p=>p.id))),courtNumbers:courtNumbers.slice(0,fullCourts),waiting:[...selected.waiting,...sitters].map(p=>p.id),results:courts.map(()=>null),mode:state.mode};
     releasePendingPlayers(id);save();render();
   }
@@ -1922,7 +1942,22 @@ function schedule(a){const roster=a.roster,players=roster.map(p=>p.id),fixed=[];
   }
   cost+=Math.random()*2;if(cost<bestCost){bestCost=cost;best=courts;}
  }
- return best;
+ // Orient the two teams for first serve, independently of court and partner assignment.
+ // Existing saved games provide the cumulative serving/receiving history.
+ const serveCounts=new Map(),receiveCounts=new Map();
+ for(const g of a.games){
+  for(const id of g.teams[0])serveCounts.set(id,(serveCounts.get(id)||0)+1);
+  for(const id of g.teams[1])receiveCounts.set(id,(receiveCounts.get(id)||0)+1);
+ }
+ return best.map(c=>{
+  const imbalance=team=>team.reduce((sum,id)=>sum+(serveCounts.get(id)||0)-(receiveCounts.get(id)||0),0);
+  const delta=imbalance(c.teams[0])-imbalance(c.teams[1]);
+  const probability=1/(1+Math.exp(Math.max(-20,Math.min(20,delta*.85))));
+  if(Math.random()>=probability)c.teams.reverse();
+  for(const id of c.teams[0])serveCounts.set(id,(serveCounts.get(id)||0)+1);
+  for(const id of c.teams[1])receiveCounts.set(id,(receiveCounts.get(id)||0)+1);
+  return c;
+ });
 }
 function nextRound(){const a=t();if(!a||!a.locked||a.finished)return;
  if(a.activeRound){const scores=a.activeRound.courts.map((c,i)=>{const x=$(`g3ScoreA_${i}`),y=$(`g3ScoreB_${i}`);return [x?.value,y?.value];});
@@ -1958,7 +1993,7 @@ function render(){refreshSaved();const a=t();$('g3Active').hidden=!a;if(!a){draf
  $('g3GamesPanel').hidden=!a.activeRound;$('g3TimerBox').hidden=!a.activeRound||a.format!=='timed';
  if(a.activeRound){$('g3RoundHeading').textContent=`Session ${a.night} · Game ${a.round}`;
  $('g3Courts').innerHTML=a.activeRound.courts.map((c,i)=>{const names=ids=>ids.map(id=>a.roster.find(p=>p.id===id)?.name||'?').map(esc).join(' & ');
- return `<div class="g3-court"><strong class="g3-court-number">COURT ${c.court}</strong><div class="g3-team">A: ${names(c.teams[0])}</div><div class="g3-serve">versus</div><div class="g3-team">B: ${names(c.teams[1])}</div><div class="g3-scoreline"><label for="g3ScoreA_${i}">A score</label><input id="g3ScoreA_${i}" type="number" min="0" step="1" inputmode="numeric" aria-label="Court ${c.court} team A score"><label for="g3ScoreB_${i}">B score</label><input id="g3ScoreB_${i}" type="number" min="0" step="1" inputmode="numeric" aria-label="Court ${c.court} team B score"></div></div>`;}).join('');}
+ return `<div class="g3-court"><strong class="g3-court-number">COURT ${c.court}</strong><div class="g3-team">A: ${names(c.teams[0])}</div><div class="g3-serve">serves to</div><div class="g3-team">B: ${names(c.teams[1])}</div><div class="g3-scoreline"><label for="g3ScoreA_${i}">A score</label><input id="g3ScoreA_${i}" type="number" min="0" step="1" inputmode="numeric" aria-label="Court ${c.court} team A score"><label for="g3ScoreB_${i}">B score</label><input id="g3ScoreB_${i}" type="number" min="0" step="1" inputmode="numeric" aria-label="Court ${c.court} team B score"></div></div>`;}).join('');}
  $('g3NightStandings').innerHTML=tableStats(a,a.night);$('g3OverallStandings').innerHTML=tableStats(a,0);
  $('g3History').innerHTML=a.games.length?`<table class="g3-table"><thead><tr><th>Session</th><th>Game</th><th>Court</th><th>Team A</th><th>Team B</th><th>Score</th></tr></thead><tbody>${a.games.slice().reverse().map(g=>`<tr><td>${g.night}</td><td>${g.round}</td><td>${g.court}</td><td>${g.teams[0].map(id=>esc(a.roster.find(p=>p.id===id)?.name)).join(' & ')}</td><td>${g.teams[1].map(id=>esc(a.roster.find(p=>p.id===id)?.name)).join(' & ')}</td><td>${g.scoreA}–${g.scoreB}</td></tr>`).join('')}</tbody></table>`:'<p class="g3-note">No completed games yet.</p>';
 }
