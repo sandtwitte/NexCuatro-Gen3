@@ -443,7 +443,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
 .g3-pill{background:#eef8df;border-radius:9px;padding:6px 10px;font-weight:700;color:#123b5d}
 @media(max-width:640px){.g3-panel{padding:12px}.g3-switch{padding:0 6px}.g3-courts{grid-template-columns:1fr}}
 
-/* G3 v1.8 Alpha — unified high-contrast court presentation (visual only) */
+/* G3 v1.8.1 Alpha — unified high-contrast court presentation (visual only) */
 :root{--nc-court-navy:#092f68;--nc-court-green:#087b2a;--nc-player-blue:#123d79;--nc-serve-gray:#697889}
 #courtArea .courts{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important}
 .g2-zone-courts{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important}
@@ -478,6 +478,10 @@ body.g3-tournament-active .app > .grid{display:none!important}
   #courtArea .courts,.g2-zone-courts,.g3-courts{grid-template-columns:1fr!important}
   #courtArea .court,.g2-zone .court,.g3-court{padding:11px 13px!important}
 }
+/* G3 v1.8.1 — tournament development status, visible only on tournament page */
+.g3-development-notice{margin:0 0 14px;padding:15px 18px;border:1px solid #cbd5e1;border-left:5px solid #64748b;border-radius:12px;background:#f8fafc;color:#243449}
+.g3-development-notice strong{display:block;font-size:1.03rem;font-weight:750}
+.g3-development-notice p{margin:5px 0 0;line-height:1.5;font-size:.93rem}
 </style>
 </head>
 <body>
@@ -496,8 +500,12 @@ body.g3-tournament-active .app > .grid{display:none!important}
     </div>
   </div>
 
-  <section class="g3-switch card panel"><strong>Play Mode</strong><select id="g3PlayType" aria-label="Play type"><option value="mixer">Mixer Play</option><option value="zoned">Zoned Play</option><option value="tournament">Tournament Play</option></select></section>
-<section id="g3Tournament" class="g3-wrap" aria-label="Tournament Play">
+  <section class="g3-switch card panel"><strong>Play Mode</strong><select id="g3PlayType" aria-label="Play type"><option value="mixer">Open</option><option value="zoned">Zoned</option><option value="tournament">Tournament</option></select></section>
+<section id="g3Tournament" class="g3-wrap" aria-label="Tournament">
+<div class="g3-development-notice" role="status" aria-label="Tournament mode development status">
+<strong>Tournament Mode — Under Development</strong>
+<p>This play mode is still under development. Some features may be incomplete or subject to change.</p>
+</div>
 <div class="card g3-panel"><h2>Tournament Play</h2><div class="g3-fields">
 <div><label>Tournament name</label><input id="g3Name" placeholder="e.g. Intermediate Fall League"></div>
 <div><label>Number of Sessions</label><select id="g3Nights"></select></div>
@@ -634,13 +642,13 @@ body.g3-tournament-active .app > .grid{display:none!important}
   <details id="featuresHelp">
     <summary>Description of current features</summary>
     <div class="features-content">
-      <h3>NextCuatro — Generation 3 · v1.8 Alpha</h3>
-      <p>NextCuatro supports three play modes: <strong>Mixer Play</strong>, <strong>Zoned Play</strong>, and the new <strong>Tournament Play</strong>. Choose a mode using the single <strong>Play Mode</strong> selector. Confirm the warning before switching; Mixer/Zoned player records are retained, and tournaments are stored separately.</p>
-      <h3>Mixer Play</h3>
+      <h3>NextCuatro — Generation 3 · v1.8.1 Alpha</h3>
+      <p>NextCuatro supports three play modes: <strong>Open</strong>, <strong>Zoned</strong>, and <strong>Tournament</strong>. Choose a mode using the single <strong>Play Mode</strong> selector. Confirm the warning before switching; Mixer/Zoned player records are retained, and tournaments are stored separately.</p>
+      <h3>Open</h3>
       <p>Flexible drop-in play for changing attendance, with up to eight courts and rosters of up to 96 tested players. Choose <strong>Smart Random</strong>, <strong>Similar Skill</strong>, or <strong>Balanced Teams</strong>. Smart Random permits unrated players; Similar Skill and Balanced Teams require ratings. Mixer includes optional adaptive ratings, fixed partners, sit-outs, departures and returns, fairness tracking, wins/losses, optional adaptive ratings, and a 10-, 12-, or 15-minute timer.</p>
-      <h3>Zoned Play</h3>
+      <h3>Zoned</h3>
       <p>Assign courts to six skill groups: Beginner (below 2.0), Developing (2.0–2.99), Intermediate 1 (3.0–3.49), Intermediate 2 (3.5–3.99), Advanced (4.0–4.49), and Elite (4.5+). Each zone has independent game advancement and fairness rotation. The organizer assigns available courts to zones. Adaptive ratings and the shared game timer are disabled in Zoned Play.</p>
-      <h3>Tournament Play — new in Generation 3</h3>
+      <h3>Tournament — under development</h3>
       <ul>
         <li>Create and save a named tournament with <strong>Number of Sessions</strong> and <strong>Games per Session</strong>; the app supports up to 16 sessions.</li>
         <li>Use a fixed roster of 4–32 registered players, in multiples of four, across up to eight courts. Every player plays each game rotation; individual Sit Out and Leave controls are not used.</li>
@@ -651,8 +659,8 @@ body.g3-tournament-active .app > .grid{display:none!important}
         <li>Substitutes can play in a registered player's place while the results remain credited to that registrant.</li>
         <li><strong>Export Tournament</strong> and <strong>Import Tournament</strong> use an Excel-compatible .xlsx workbook. These files can also be stored in Google Drive and opened in Google Sheets; this is not live Google Sheets synchronization.</li>
       </ul>
-      <p class="feature-version">NextCuatro · Generation 3 · v1.8 Alpha · Flexible. Smart. Adaptive.</p>
-      <h3>Mixer and Zoned details</h3>
+      <p class="feature-version">NextCuatro · Generation 3 · v1.8.1 Alpha · Flexible. Smart. Adaptive.</p>
+      <h3>Open and Zoned details</h3>
       <h3>Players &amp; availability</h3>
       <ul>
         <li>Add players before or during a session; new players receive priority in the next rotation when space permits, without catching up on earlier sit-outs.</li>
@@ -692,7 +700,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     </div>
   </details>
 </section>
-<div class="footer">NextCuatro · Generation 3 · v1.8 Alpha · © 2026 Todd Witte</div>
+<div class="footer">NextCuatro · Generation 3 · v1.8.1 Alpha · © 2026 Todd Witte</div>
 
 <div id="pairFairnessModal" class="nc-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pairFairnessTitle">
   <div class="nc-modal">
@@ -1912,8 +1920,8 @@ function switchMode(mode){
  const activeTournament=t();
  const changingTournament=(mode==='tournament'||oldMode==='tournament');
  const warning=changingTournament
-  ? 'Switch to '+(mode==='tournament'?'Tournament Play':mode==='zoned'?'Zoned Play':'Mixer Play')+'?\n\nYour existing tournament is saved separately. Finish any current games and export important tournament data before changing modes.'
-  : 'Switch from '+(oldMode==='zoned'?'Zoned Play':'Mixer Play')+' to '+(mode==='zoned'?'Zoned Play':'Mixer Play')+'?\n\nConfirm that current games have finished. Player records will be kept, but the court assignments will be converted for the new mode.';
+  ? 'Switch to '+(mode==='tournament'?'Tournament':mode==='zoned'?'Zoned':'Open')+'?\n\nYour existing tournament is saved separately. Finish any current games and export important tournament data before changing modes.'
+  : 'Switch from '+(oldMode==='zoned'?'Zoned':'Open')+' to '+(mode==='zoned'?'Zoned':'Open')+'?\n\nConfirm that current games have finished. Player records will be kept, but the court assignments will be converted for the new mode.';
  if(!confirm(warning)){select.value=oldMode;return;}
  if(mode!=='tournament' && $('sessionMode').value!==mode){
    $('sessionMode').value=mode;
