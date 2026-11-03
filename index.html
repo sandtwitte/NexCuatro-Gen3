@@ -420,6 +420,7 @@ input,select,button{max-width:100%}
 body.g3-tournament-active .topbar .toolbar{display:none!important}
 body.g3-tournament-active .g2-controls,
 body.g3-tournament-active .app > .grid{display:none!important}
+body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none!important}
 
 /* G3 v1.2 — single visible mode selector and integrated timed-game controls */
 .g3-switch{justify-content:flex-start}
@@ -500,7 +501,16 @@ body.g3-tournament-active .app > .grid{display:none!important}
     </div>
   </div>
 
-  <section class="g3-switch card panel"><strong>Play Mode</strong><select id="g3PlayType" aria-label="Play type"><option value="mixer">Open</option><option value="zoned">Zoned</option><option value="tournament">Tournament</option></select></section>
+  <section class="g3-switch card panel"><strong>Play Mode</strong><select id="g3PlayType" aria-label="Play type"><option value="mixer">Open</option><option value="zoned">Zoned</option><option value="royal">Royal 👑</option><option value="tournament">Tournament</option></select></section>
+<section id="g3Royal" class="g3-wrap" aria-label="Royal Play" aria-hidden="true">
+  <div class="card g3-panel" style="border:2px solid #d8b35a;background:#fffaf0">
+    <h2>👑 Royal Play — Under Development</h2>
+    <p>Royal Play is a planned mixer mode where the organizer can choose a different style of game before each round: Queens’ Mixer, Kings’ Mixer, Kings vs. Queens, or Royal Mixed Doubles.</p>
+    <p>Players will eventually be able to select an <strong>optional King or Queen mixer preference</strong>. Royal Play will prioritize the selected matchup, keep preferred games on lower-numbered courts, and use higher-numbered courts for additional games so more players can stay active.</p>
+    <p><strong>Similar Skill</strong> will be the default shuffle style, with Smart Random and Balanced Teams also planned. Skill balance, fair rotations, and partner variety will remain important.</p>
+    <p><strong>Not yet available:</strong> Royal registration preferences, player prompts, and Royal game generation. No Royal games can be created in this preview.</p>
+  </div>
+</section>
 <section id="g3Tournament" class="g3-wrap" aria-label="Tournament">
 <div class="g3-development-notice" role="status" aria-label="Tournament mode development status">
 <strong>⚠ Tournament Mode — Under Construction</strong>
@@ -637,7 +647,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
         <div style="overflow:auto">
           <table>
             <thead>
-              <tr><th>Player</th><th>Played</th><th>Byes / Sit Outs</th><th>Wins/Losses</th><th>Adaptive rating</th><th>Different partners</th><th>Status</th></tr>
+              <tr><th>Player</th><th>Played</th><th>Byes / Sit Outs</th><th>Wins/Losses</th><th>Adaptive rating</th><th>Different partners</th><th>Unique Faces</th><th>Status</th></tr>
             </thead>
             <tbody id="statsBody"></tbody>
           </table>
@@ -760,11 +770,11 @@ body.g3-tournament-active .app > .grid{display:none!important}
       <p>Session information is stored locally in the browser on the device being used.</p>
       <p>Closing the browser does not necessarily erase the session, but clearing browser data may remove saved information.</p>
       <p><strong>New Session / Clear Everything</strong> requires confirmation before erasing the current session.</p>
-      <p class="feature-version">NextCuatro · Generation 3 · vG3.1.8.4</p>
+      <p class="feature-version">NextCuatro · Generation 3 · vG3.1.8.4.4</p>
     </div>
   </details>
 </section>
-<div class="footer">© 2026 T. Witte · NextCuatro · All rights reserved. · <a href="mailto:support@nextcuatro.com">support@nextcuatro.com</a> · vG3.1.8.4</div>
+<div class="footer">© 2026 T. Witte · NextCuatro · All rights reserved. · <a href="mailto:support@nextcuatro.com">support@nextcuatro.com</a> · vG3.1.8.4.4</div>
 
 <div id="pairFairnessModal" class="nc-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pairFairnessTitle">
   <div class="nc-modal">
@@ -910,7 +920,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     }
     $('duplicateNotice').style.display = 'none';
     const {skill,skillLabel} = skillChoice($('playerSkill').value);
-    if(isZoned() && skill===null){ncAlert('Zoned Play requires a skill level. Select Beginner or a rating of 2.0 or higher.');$('playerSkill').focus();return;}
+    if(isZoned() && skill===null){ncAlert('Zoned Play requires a skill level.');$('playerSkill').focus();return;}
     state.players.push({
       id:uid(), name:raw, skill, skillLabel, status:'active',
       played:0, sat:0, lastSatRound:-999, joinedRound:state.round,
@@ -928,7 +938,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
     const p=state.players.find(x=>x.id===id);
     if(!p) return;
     const {skill:newSkill,skillLabel} = skillChoice(value);
-    if(isZoned() && newSkill===null){ncAlert('Zoned Play requires a skill level. Select Beginner or a rating of 2.0 or higher.');render();return;}
+    if(isZoned() && newSkill===null){ncAlert('Zoned Play requires a skill level.');render();return;}
     const wasDescriptive=Boolean(p.skillLabel);
     p.skill=Number.isFinite(newSkill)?newSkill:null;
     p.skillLabel=skillLabel;
@@ -1749,7 +1759,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
       const zid=isZoned()?(currentZone(p)||'unassigned'):null;
       if(isZoned()&&zid!==lastZone){
         const header=document.createElement('tr');header.className='g2-stats-group';
-        const cell=document.createElement('td');cell.colSpan=7;cell.textContent=zoneName(zid);
+        const cell=document.createElement('td');cell.colSpan=8;cell.textContent=zoneName(zid);
         cell.style.background=zoneColor(zid);cell.style.color=zid==='elite'?'#fff':'#102A43';
         cell.style.fontWeight='800';header.appendChild(cell);body.appendChild(header);lastZone=zid;
       }
@@ -1762,6 +1772,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
         <td>${Number(p.wins)||0}–${Number(p.losses)||0}</td>
         <td>${p.skillLabel ? escapeHtml(skillDisplay(p)) : (p.skill!=null && Number.isFinite(p.adaptiveRating) ? Number(p.adaptiveRating).toFixed(2) : '—')}</td>
         <td>${Object.keys(p.partners||{}).length}</td>
+        <td>${new Set([...Object.keys(p.partners||{}), ...Object.keys(p.opponents||{})].filter(id=>id!==String(p.id))).size}</td>
         <td>${statusLabel(p.status||'active')}</td>`;
       body.appendChild(tr);
     }
@@ -1811,7 +1822,16 @@ body.g3-tournament-active .app > .grid{display:none!important}
     renderMixerCourtPicker();
     $('sessionEndType').value=state.endType;
     $('endTime').value=state.endTime;
-    $('modeSelect').value=state.mode;
+    // Zoned Play already separates players by skill: show Smart Random only.
+    // Preserve the Open Play shuffle selection in state.mode for when users return.
+    const shuffleSelect=$('modeSelect');
+    for(const option of shuffleSelect.options){
+      const zonedOnly=isZoned() && option.value!=='smart';
+      option.hidden=zonedOnly;
+      option.disabled=zonedOnly;
+    }
+    shuffleSelect.value=isZoned()?'smart':state.mode;
+    shuffleSelect.disabled=isZoned();
     $('timerMinutes').value=String(state.timerMinutes??12);
     renderPlayers(); renderStats(); if(!isZoned())renderRound(); renderReservation();
   }
@@ -1898,7 +1918,7 @@ body.g3-tournament-active .app > .grid{display:none!important}
       }else courtBox.innerHTML='<div class="subtle">Ready for this zone’s first rotation.</div>';
       box.querySelector('.g2-next').onclick=()=>zoneAdvance(z.id);area.appendChild(box);
     }
-    const unassigned=state.players.filter(p=>p.status==='active'&&!currentZone(p));if(unassigned.length){const b=document.createElement('div');b.className='g2-unassigned';b.textContent='Unrated (select Beginner or a rating): '+unassigned.map(p=>p.name).join(', ');area.appendChild(b)}
+    const unassigned=state.players.filter(p=>p.status==='active'&&!currentZone(p));if(unassigned.length){const b=document.createElement('div');b.className='g2-unassigned';b.textContent='Unrated (select a skill level): '+unassigned.map(p=>p.name).join(', ');area.appendChild(b)}
   }
   function escapeHtml(s){
     return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
@@ -2029,34 +2049,43 @@ function resetTimer(){stopTimer();timerLeft=t()?.format==='timed'?t().gameValue*
 // and apply the change explicitly; otherwise the app stays in Mixer.
 async function switchMode(mode){
  const select=$('g3PlayType');
- const oldMode=document.body.classList.contains('g3-tournament-active')?'tournament':$('sessionMode').value;
+ const oldMode=document.body.classList.contains('g3-royal-active')?'royal':document.body.classList.contains('g3-tournament-active')?'tournament':$('sessionMode').value;
  if(mode===oldMode)return;
- const activeTournament=t();
+ const label=m=>({mixer:'Open',zoned:'Zoned',royal:'Royal',tournament:'Tournament'})[m]||m;
  const changingTournament=(mode==='tournament'||oldMode==='tournament');
- const warning=changingTournament
-  ? 'Switch to '+(mode==='tournament'?'Tournament':mode==='zoned'?'Zoned':'Open')+'?\n\nYour existing tournament is saved separately. Finish any current games and export important tournament data before changing modes.'
-  : 'Switch from '+(oldMode==='zoned'?'Zoned':'Open')+' to '+(mode==='zoned'?'Zoned':'Open')+'?\n\nConfirm that current games have finished. Player records will be kept, but the court assignments will be converted for the new mode.';
+ const warning=mode==='royal'
+  ? 'Switch to Royal Play?\n\nRoyal Play is under development. This preview does not generate games or collect King/Queen preferences. Your existing Open/Zoned player records will be retained.'
+  : oldMode==='royal'
+  ? 'Switch from Royal Play to '+label(mode)+'?\n\nRoyal Play is only a preview. Your existing Open/Zoned player records are retained.'
+  : changingTournament
+  ? 'Switch to '+label(mode)+'?\n\nYour existing tournament is saved separately. Finish any current games and export important tournament data before changing modes.'
+  : 'Switch from '+label(oldMode)+' to '+label(mode)+'?\n\nConfirm that current games have finished. Player records will be kept, but the court assignments will be converted for the new mode.';
  if(!(await ncConfirm(warning))){select.value=oldMode;return;}
- if(mode!=='tournament' && $('sessionMode').value!==mode){
-   $('sessionMode').value=mode;
-   $('sessionMode').dispatchEvent(new Event('change'));
-   window.__g3ModeApproved=true;
-   $('applyMode').click();
-   window.__g3ModeApproved=false;
-   if($('sessionMode').value!==mode || document.getElementById('modePending').hidden===false){
-     // Defensive rollback if the underlying conversion did not complete.
-     $('cancelMode').click();select.value=oldMode;return;
+ // Royal is a standalone preview: never send "royal" into the existing G2 scheduler.
+ if(mode==='mixer'||mode==='zoned'){
+   if($('sessionMode').value!==mode){
+     $('sessionMode').value=mode;
+     $('sessionMode').dispatchEvent(new Event('change'));
+     window.__g3ModeApproved=true;
+     $('applyMode').click();
+     window.__g3ModeApproved=false;
+     if($('sessionMode').value!==mode || document.getElementById('modePending').hidden===false){
+       $('cancelMode').click();select.value=oldMode;return;
+     }
    }
  }
- const show=mode==='tournament';
- document.body.classList.toggle('g3-tournament-active',show);
- $('g3Tournament').classList.toggle('active',show);
- document.querySelector('.g2-controls').hidden=show;
- document.querySelector('.app > .grid').hidden=show;
- // Keep the Generation 3 feature guide available in every play mode.
+ const showTournament=mode==='tournament',showRoyal=mode==='royal';
+ document.body.classList.toggle('g3-tournament-active',showTournament);
+ document.body.classList.toggle('g3-royal-active',showRoyal);
+ $('g3Tournament').classList.toggle('active',showTournament);
+ $('g3Royal').classList.toggle('active',showRoyal);
+ $('g3Royal').setAttribute('aria-hidden',String(!showRoyal));
+ const hideMain=showTournament||showRoyal;
+ document.querySelector('.g2-controls').hidden=hideMain;
+ document.querySelector('.app > .grid').hidden=hideMain;
  document.querySelector('.features-panel').hidden=false;
  stopTimer();
- if(show)render();
+ if(showTournament)render();
 }
 $('g3PlayType').value=$('sessionMode').value;
 $('g3PlayType').onchange=e=>switchMode(e.target.value);
