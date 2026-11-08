@@ -702,7 +702,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
         <div style="overflow:auto">
           <table>
             <thead>
-              <tr><th>Player</th><th>Played</th><th>Byes / Sit Outs</th><th>Wins/Losses</th><th>Adaptive rating</th><th>Different partners</th><th>Unique Faces</th><th>Status</th></tr>
+              <tr><th>Player</th><th>Status</th><th>Games</th><th>Sit-Outs</th><th>Decline</th><th>Partners</th><th>Faces</th><th>W–L</th><th>Adaptive</th></tr>
             </thead>
             <tbody id="statsBody"></tbody>
           </table>
@@ -769,11 +769,11 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
         <p><span aria-hidden="true">🏆</span> <strong>Tournament Play:</strong> Planned multi-game tournaments spanning one or more sessions, with standings and cumulative results.</p>
         <p class="future-note"><em>Planned features — not yet available in Generation 3.</em></p>
       </div>
-      <p class="feature-version">NextCuatro · Generation 3 · G3.2.14</p>
+      <p class="feature-version">NextCuatro · Generation 3 · G3.2.17</p>
     </div>
   </details>
 </section>
-<div class="footer">© 2026 T. Witte · NextCuatro · All rights reserved. · <a href="mailto:support@nextcuatro.com">support@nextcuatro.com</a> · G3.2.14</div>
+<div class="footer">© 2026 T. Witte · NextCuatro · All rights reserved. · <a href="mailto:support@nextcuatro.com">support@nextcuatro.com</a> · G3.2.17</div>
 
 <div id="pairFairnessModal" class="nc-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pairFairnessTitle">
   <div class="nc-modal">
@@ -797,7 +797,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
 #nc-message-actions button{padding:10px 20px;border-radius:8px;border:1px solid #b9c8cd;font:inherit;cursor:pointer}
 #nc-message-ok{background:#176d5c;color:white}
 
-/* G3.2.14 — header hierarchy and space utilization; presentation only. */
+/* G3.2.17 — header hierarchy and space utilization; presentation only. */
 @media(min-width:901px){
   .topbar{display:grid;grid-template-columns:minmax(310px,auto) minmax(300px,1fr) auto;gap:16px;align-items:center;flex-wrap:nowrap}
   .topbar .brand{width:auto;gap:12px}
@@ -823,7 +823,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
   .topbar .g32-pitch-line{font-size:13px;line-height:1.35}
 }
 
-/* G3.2.14 — high-contrast warm gold messaging and clearly destructive reset button. */
+/* G3.2.17 — high-contrast warm gold messaging and clearly destructive reset button. */
 .topbar .g32-pitch-title{color:#ffe08a}
 .topbar .g32-pitch-line,.topbar .g32-pitch-line strong{color:#ffe8aa}
 .topbar #resetBtn.secondary{
@@ -909,7 +909,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
   state.players=(state.players||[]).map(p=>({
     wins:0,losses:0,partners:{},opponents:{},courtVisits:{},played:0,sat:0,lastSatRound:-999,
     joinedRound:0,fairnessOffset:0,firstGamePriority:false,status:'active',fixedPartnerId:null,sitNext:false,playStreak:0,
-    adaptiveRating:null,resultGames:0,...p
+    adaptiveRating:null,resultGames:0,declines:0,...p
   }));
   state.players.forEach(p=>{
   if(p.status==='leaving') p.status='active';
@@ -925,7 +925,8 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
   function rating(p){ return (!isZoned() && p.useAdaptive!==false && Number.isFinite(p.adaptiveRating)) ? p.adaptiveRating : (p.skill ?? 3.0); }
 
   // Arrival-adjusted scheduling score. Actual sit-out totals remain untouched.
-  function schedulingSit(p){ return (p.sat||0)+(p.fairnessOffset||0); }
+  function schedulingSit(p){ return (p.sat||0)+(p.declines||0)+(p.fairnessOffset||0); }
+  function fairnessCredit(p){return (p.sat||0)+(p.declines||0);}
   function arrivalBaseline(excludeId){
     const peers=state.players.filter(p=>p.id!==excludeId && (p.status==='active'||p.status==='leaving'));
     if(!peers.length)return 0;
@@ -1153,56 +1154,65 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
     return p.fixedPartnerId;
   }
 
-  // Pair fairness: historical sit-outs are displayed unchanged. A late arrival
-  // cannot veto a pair invitation merely because they have a smaller raw count.
-  // Each invitation stores a snapshot of eligible solo players' adjusted sit-outs;
-  // another invitation is allowed only after those same players have sat again.
+  // G3.2.17: one invitation per complete sit-out opportunity cycle.
+  // A refusal credits each member once; actual sit-outs are never falsified.
+  // Each fixed pair is its own fairness unit, so multiple pairs are supported.
   let pairPromptPending=false;
-  function maybeSuggestPairBreak(actives,capacity){
-    if(pairPromptPending || state.temporaryPair?.remaining>0) return false;
-    if(actives.length<=capacity) return false;
-    const pairs=makeUnits(actives).filter(u=>u.length===2);
-    const solos=actives.filter(p=>!p.fixedPartnerId);
-    if(!solos.length || !pairs.length) return false;
-    const soloScores=solos.map(schedulingSit).sort((a,b)=>a-b);
-    const mid=Math.floor(soloScores.length/2);
-    const typicalSoloSit=soloScores.length%2 ? soloScores[mid] : (soloScores[mid-1]+soloScores[mid])/2;
-    state.pairPromptDeclinedAt ||= {};
-    const due=pairs.find(u=>{
-      const key=u.map(p=>p.id).sort().join(':');
-      const previous=state.pairPromptDeclinedAt[key];
-      if(!u.every(p=>schedulingSit(p)<typicalSoloSit-0.00001)) return false;
-      if(previous && typeof previous==='object'){
-        const snapshot=previous.solos||{};
-        const stillHere=solos.filter(p=>Object.prototype.hasOwnProperty.call(snapshot,p.id));
-        // The same incumbent solo players must each have sat once since the
-        // last invitation. Newly arrived players do not cause catch-up delays.
-        if(stillHere.length && !stillHere.every(p=>schedulingSit(p)>snapshot[p.id]+0.00001))return false;
-        if(!stillHere.length && typicalSoloSit<=previous.median+0.00001)return false;
-      }else if(typeof previous==='number' && typicalSoloSit<=previous+0.00001){
-        return false; // backward compatibility with saved v5.12 sessions
-      }
-      return true;
+  // Each fixed pair is a single rotation unit. A pair can be offered its
+  // next opportunity only when its credited opportunities are at the floor
+  // of the rotation. When there are insufficient solo sitters, an invitation
+  // can be brought forward rather than benching an unconsenting pair.
+  function pairDue(actives,capacity,zoneId=null){
+    if(actives.length<=capacity)return null;
+    const units=makeUnits(actives), pairs=units.filter(u=>u.length===2);
+    if(!pairs.length)return null;
+    const credit=u=>Math.min(...u.map(schedulingSit));
+    const need=actives.length-capacity;
+    const soloCount=units.filter(u=>u.length===1).length;
+    const mustAsk=soloCount<need;
+    const floor=Math.min(...units.map(credit));
+    const candidates=pairs.filter(u=>{
+      const c=credit(u);
+      // Once a pair declines, its score rises; do not invite again while
+      // any other unit has a lower score.
+      if(c>floor+0.000001)return false;
+      if(mustAsk)return true;
+      // Prefer solo players' first opportunity before offering the pair.
+      return units.filter(v=>v.length===1).every(v=>credit(v)>=c+0.999999);
     });
+    candidates.sort((a,b)=>credit(a)-credit(b));
+    return candidates[0]||null;
+  }
+  function maybeSuggestPairBreak(actives,capacity){
+    if(pairPromptPending || state.temporaryPair?.remaining>0)return false;
+    const due=pairDue(actives,capacity);
     if(!due)return false;
-    const [a,b]=due,key=due.map(p=>p.id).sort().join(':');
+    const [a,b]=due;
     pairPromptPending=true;
-    const modal=$('pairFairnessModal');
-    $('pairFairnessDescription').textContent=`${a.name} and ${b.name} are due for a break. To keep sit-outs fair, would you like to temporarily separate them for the next two games?`;
-    modal.hidden=false;
+    $('pairFairnessDescription').textContent=`${a.name} and ${b.name} are due for a sit-out opportunity. Separate temporarily so each partner sits out once in the next two rounds?`;
+    $('pairFairnessModal').hidden=false;
     const finish=approved=>{
-      modal.hidden=true;
-      pairPromptPending=false;
-      state.pairPromptDeclinedAt[key]={median:typicalSoloSit,solos:Object.fromEntries(solos.map(p=>[p.id,schedulingSit(p)]))};
+      $('pairFairnessModal').hidden=true;pairPromptPending=false;
       if(approved)state.temporaryPair={ids:[a.id,b.id],remaining:2};
+      else {a.declines=(a.declines||0)+1;b.declines=(b.declines||0)+1;state.pairDeclineProtection=[a.id,b.id];}
       save();makeRound(true);
     };
     $('pairFairnessYes').onclick=()=>finish(true);
     $('pairFairnessNo').onclick=()=>finish(false);
-    $('pairFairnessYes').focus();
-    return true;
+    $('pairFairnessYes').focus();return true;
   }
 
+  // A refusal is an opportunity credit, not permission to bench the pair.
+  // Protect declined pairs through the current opportunity cycle. When the
+  // remaining units catch up, the pair may be invited again in the next cycle.
+  function declinedPairProtected(actives){
+    // No fixed pair may be involuntarily benched. Only a confirmed two-round
+    // separation can place one partner on the waiting list.
+    const ids=new Set();
+    for(const unit of makeUnits(actives))if(unit.length===2)
+      for(const p of unit)ids.add(p.id);
+    return ids;
+  }
   function makeUnits(players){
     const ids=new Set(players.map(p=>p.id)), used=new Set(), units=[];
     for(const p of players){
@@ -1232,11 +1242,12 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
     function penalty(p){
       const priority=(protectedIds?.has(p.id)?1000000000:0)+(p.firstGamePriority?1000000:0);
       const recent=state.round-(p.lastSatRound??-999)<=1?1000:0;
-      return priority+100*Math.max(0,schedulingSit(p))+recent-0.4*(p.playStreak||0)+Math.random()*.15;
+      return priority+100000*Math.max(0,schedulingSit(p))+recent-0.4*(p.playStreak||0)+Math.random()*.15;
     }
     const dp=Array(need+1).fill(null);
     dp[0]={cost:0,waiting:[]};
     for(const u of shuffle(units)){
+      if(u.some(p=>protectedIds?.has(p.id)))continue;
       const cost=u.reduce((sum,p)=>sum+penalty(p),0);
       for(let n=need;n>=u.length;n--){
         const prior=dp[n-u.length];if(!prior)continue;
@@ -1643,10 +1654,12 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
       pairSeparationPaused=true;
     }
     const eligible=forcedSitter?actives.filter(p=>p.id!==forcedSitter.id):actives;
-    const selected=chooseParticipants(eligible,capacity,state.mode);
+    const protectedIds=declinedPairProtected(eligible);
+    if(forcedSitter)state.temporaryPair.ids.filter(pid=>pid!==forcedSitter.id).forEach(pid=>protectedIds.add(pid));
+    const selected=chooseParticipants(eligible,capacity,state.mode,protectedIds);
     const playing=selected.playing, waiting=[...selected.waiting,...(forcedSitter?[forcedSitter]:[])];
     if(playing.length!==capacity){
-      ncAlert('Cannot fill all courts while keeping fixed pairs together. Please adjust courts or pairings.');
+      ncAlert('Not enough individual sit-out volunteers to fill these courts without benching a fixed pair. Ask a pair to separate, or adjust courts or pairings.');
       return;
     }
     // Voluntary one-round sitters are displayed with everyone sitting this round,
@@ -1865,7 +1878,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
       const zid=isZoned()?(currentZone(p)||'unassigned'):null;
       if(isZoned()&&zid!==lastZone){
         const header=document.createElement('tr');header.className='g2-stats-group';
-        const cell=document.createElement('td');cell.colSpan=8;cell.textContent=zoneName(zid);
+        const cell=document.createElement('td');cell.colSpan=9;cell.textContent=zoneName(zid);
         cell.style.background=zoneColor(zid);cell.style.color=zid==='elite'?'#fff':'#102A43';
         cell.style.fontWeight='800';header.appendChild(cell);body.appendChild(header);lastZone=zid;
       }
@@ -1873,13 +1886,14 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
       if(isZoned())tr.style.background=zoneTint(zid);
       tr.innerHTML=`
         <td>${escapeHtml(p.name??'')}</td>
+        <td>${statusLabel(p.status||'active')}</td>
         <td>${Number(p.played)||0}</td>
         <td>${Number(p.sat)||0}</td>
-        <td>${Number(p.wins)||0}–${Number(p.losses)||0}</td>
-        <td>${p.skillLabel ? escapeHtml(skillDisplay(p)) : (p.skill!=null && Number.isFinite(p.adaptiveRating) ? Number(p.adaptiveRating).toFixed(2) : '—')}</td>
+        <td>${Number(p.declines)||0}</td>
         <td>${Object.keys(p.partners||{}).length}</td>
         <td>${new Set([...Object.keys(p.partners||{}), ...Object.keys(p.opponents||{})].filter(id=>id!==String(p.id))).size}</td>
-        <td>${statusLabel(p.status||'active')}</td>`;
+        <td>${Number(p.wins)||0}–${Number(p.losses)||0}</td>
+        <td>${p.skillLabel ? escapeHtml(skillDisplay(p)) : (p.skill!=null && Number.isFinite(p.adaptiveRating) ? Number(p.adaptiveRating).toFixed(2) : '—')}</td>`;
       body.appendChild(tr);
     }
   }
@@ -1953,50 +1967,24 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
     const stillPlaying=new Set(Object.entries(state.zoneRounds||{}).filter(([id])=>id!==zoneId).flatMap(([,r])=>(r.currentRound?.courts||[]).flat(2)));
     for(const p of state.players){if(p.pendingZone!==undefined&&currentZone(p)===zoneId&&!stillPlaying.has(p.id))moveToZone(p,p.pendingZone)}
   }
-  // Zoned Play pair fairness is scoped to the zone being advanced.
-  // It uses the existing confirmation modal, but stores its own two-round
-  // separation and declined-prompt snapshots per zone.
+  // Same opportunity-cycle rule, evaluated independently in each zone.
   function maybeSuggestZonePairBreak(id,actives,capacity){
-    if(pairPromptPending || state.zoneTemporaryPairs?.[id]?.remaining>0 || actives.length<=capacity)return false;
-    const pairs=makeUnits(actives).filter(u=>u.length===2);
-    const solos=actives.filter(p=>!p.fixedPartnerId);
-    if(!pairs.length||!solos.length)return false;
-    const scores=solos.map(schedulingSit).sort((a,b)=>a-b);
-    const m=Math.floor(scores.length/2);
-    const median=scores.length%2?scores[m]:(scores[m-1]+scores[m])/2;
-    state.zonePairPromptDeclinedAt ||= {};
-    const history=state.zonePairPromptDeclinedAt[id] ||= {};
-    const due=pairs.find(u=>{
-      if(!u.every(p=>schedulingSit(p)<median-0.00001))return false;
-      const key=u.map(p=>p.id).sort().join(':');
-      const previous=history[key];
-      if(previous){
-        const snapshot=previous.solos||{};
-        const incumbents=solos.filter(p=>Object.prototype.hasOwnProperty.call(snapshot,p.id));
-        if(incumbents.length && !incumbents.every(p=>schedulingSit(p)>snapshot[p.id]+0.00001))return false;
-        if(!incumbents.length && median<=previous.median+0.00001)return false;
-      }
-      return true;
-    });
+    if(pairPromptPending || state.zoneTemporaryPairs?.[id]?.remaining>0)return false;
+    const due=pairDue(actives,capacity,id);
     if(!due)return false;
-    const [a,b]=due,key=due.map(p=>p.id).sort().join(':');
+    const [a,b]=due;
     pairPromptPending=true;
-    $('pairFairnessDescription').textContent=`${a.name} and ${b.name} are due for a break in this zone. To keep sit-outs fair, would you like to temporarily separate them for the next two games?`;
+    $('pairFairnessDescription').textContent=`${a.name} and ${b.name} are due for a sit-out opportunity in this zone. Separate temporarily so each partner sits out once in the next two rounds?`;
     $('pairFairnessModal').hidden=false;
     const finish=approved=>{
-      $('pairFairnessModal').hidden=true;
-      pairPromptPending=false;
-      history[key]={median,solos:Object.fromEntries(solos.map(p=>[p.id,schedulingSit(p)]))};
-      if(approved){
-        state.zoneTemporaryPairs ||= {};
-        state.zoneTemporaryPairs[id]={ids:[a.id,b.id],remaining:2};
-      }
+      $('pairFairnessModal').hidden=true;pairPromptPending=false;
+      if(approved){state.zoneTemporaryPairs||={};state.zoneTemporaryPairs[id]={ids:[a.id,b.id],remaining:2};}
+      else {a.declines=(a.declines||0)+1;b.declines=(b.declines||0)+1;state.zoneDeclineProtection||={};state.zoneDeclineProtection[id]=[a.id,b.id];}
       save();zoneAdvance(id,true);
     };
     $('pairFairnessYes').onclick=()=>finish(true);
     $('pairFairnessNo').onclick=()=>finish(false);
-    $('pairFairnessYes').focus();
-    return true;
+    $('pairFairnessYes').focus();return true;
   }
   function zoneAdvance(id,skipPairPrompt=false){
     if(!isZoned())return;
@@ -2021,7 +2009,8 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
     const schedulable=forcedSitter?eligible.filter(p=>p.id!==forcedSitter.id):eligible;
     // Fixed teams must be scheduled together; if capacity is incompatible, do not change any data.
     for(const p of schedulable){if(p.fixedPartnerId&&!schedulable.some(q=>q.id===p.fixedPartnerId) && effectivePartnerId(p))return ncAlert('A fixed partner is unavailable or in another zone. Unpair or correct the players before rotating.');}
-    const protectedIds=forcedSitter?new Set(temp.ids.filter(pid=>pid!==forcedSitter.id)):null;
+    const protectedIds=declinedPairProtected(schedulable);
+    if(forcedSitter)temp.ids.filter(pid=>pid!==forcedSitter.id).forEach(pid=>protectedIds.add(pid));
     const selected=chooseParticipants(schedulable,capacity,state.mode,protectedIds);
     if(selected.playing.length!==capacity)return ncAlert('Cannot fill courts while keeping fixed pairs together. Adjust courts or pairings.');
     if(protectedIds && selected.waiting.some(p=>protectedIds.has(p.id)))return ncAlert('Cannot give partners separate sit-outs with the current court and pairing configuration.');
@@ -2173,7 +2162,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
     // Keep player identity, entered skill, adaptive ON/OFF preference, pairs,
     // availability, court allocations, and active games untouched.
     for(const p of state.players){
-      p.played=0; p.sat=0; p.wins=0; p.losses=0;
+      p.played=0; p.sat=0; p.declines=0; p.wins=0; p.losses=0;
       p.partners={}; p.opponents={}; p.courtVisits={};
       p.adaptiveRating=p.skill==null?null:p.skill;
       p.resultGames=0;
