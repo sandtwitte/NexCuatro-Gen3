@@ -769,11 +769,11 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
         <p><span aria-hidden="true">🏆</span> <strong>Tournament Play:</strong> Planned multi-game tournaments spanning one or more sessions, with standings and cumulative results.</p>
         <p class="future-note"><em>Planned features — not yet available in Generation 3.</em></p>
       </div>
-      <p class="feature-version">NextCuatro · Generation 3 · G3.2.13</p>
+      <p class="feature-version">NextCuatro · Generation 3 · G3.2.14</p>
     </div>
   </details>
 </section>
-<div class="footer">© 2026 T. Witte · NextCuatro · All rights reserved. · <a href="mailto:support@nextcuatro.com">support@nextcuatro.com</a> · G3.2.13</div>
+<div class="footer">© 2026 T. Witte · NextCuatro · All rights reserved. · <a href="mailto:support@nextcuatro.com">support@nextcuatro.com</a> · G3.2.14</div>
 
 <div id="pairFairnessModal" class="nc-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pairFairnessTitle">
   <div class="nc-modal">
@@ -797,7 +797,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
 #nc-message-actions button{padding:10px 20px;border-radius:8px;border:1px solid #b9c8cd;font:inherit;cursor:pointer}
 #nc-message-ok{background:#176d5c;color:white}
 
-/* G3.2.13 — header hierarchy and space utilization; presentation only. */
+/* G3.2.14 — header hierarchy and space utilization; presentation only. */
 @media(min-width:901px){
   .topbar{display:grid;grid-template-columns:minmax(310px,auto) minmax(300px,1fr) auto;gap:16px;align-items:center;flex-wrap:nowrap}
   .topbar .brand{width:auto;gap:12px}
@@ -823,7 +823,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
   .topbar .g32-pitch-line{font-size:13px;line-height:1.35}
 }
 
-/* G3.2.13 — high-contrast warm gold messaging and clearly destructive reset button. */
+/* G3.2.14 — high-contrast warm gold messaging and clearly destructive reset button. */
 .topbar .g32-pitch-title{color:#ffe08a}
 .topbar .g32-pitch-line,.topbar .g32-pitch-line strong{color:#ffe8aa}
 .topbar #resetBtn.secondary{
@@ -1143,6 +1143,11 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
     // impossible to schedule. Keep the pairing preference for a later return.
     if(!partner || !['active','leaving'].includes(partner.status) || partner.sitNext) return null;
     if(pairSeparationPaused) return p.fixedPartnerId;
+    if(isZoned()){
+      const z=state.zoneTemporaryPairs?.[currentZone(p)];
+      if(z && z.remaining>0 && z.ids.includes(p.id)) return null;
+      return p.fixedPartnerId;
+    }
     const t=state.temporaryPair;
     if(t && t.remaining>0 && t.ids.includes(p.id)) return null;
     return p.fixedPartnerId;
@@ -1219,13 +1224,13 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
 
   // Bounded dynamic programming: select complete fixed-pair units to sit.
   // Runtime grows with player count * number of sit-out slots, not combinations.
-  function chooseParticipants(players,capacity,mode){
+  function chooseParticipants(players,capacity,mode,protectedIds=null){
     if(players.length<=capacity)return {playing:[...players],waiting:[]};
     const units=makeUnits(players),need=players.length-capacity;
     // Lower scheduling sit-out totals sit first; first-game newcomers play first.
     // Lexicographic fairness is approximated by a bounded weighted score.
     function penalty(p){
-      const priority=p.firstGamePriority?1000000:0;
+      const priority=(protectedIds?.has(p.id)?1000000000:0)+(p.firstGamePriority?1000000:0);
       const recent=state.round-(p.lastSatRound??-999)<=1?1000:0;
       return priority+100*Math.max(0,schedulingSit(p))+recent-0.4*(p.playStreak||0)+Math.random()*.15;
     }
@@ -1948,7 +1953,52 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
     const stillPlaying=new Set(Object.entries(state.zoneRounds||{}).filter(([id])=>id!==zoneId).flatMap(([,r])=>(r.currentRound?.courts||[]).flat(2)));
     for(const p of state.players){if(p.pendingZone!==undefined&&currentZone(p)===zoneId&&!stillPlaying.has(p.id))moveToZone(p,p.pendingZone)}
   }
-  function zoneAdvance(id){
+  // Zoned Play pair fairness is scoped to the zone being advanced.
+  // It uses the existing confirmation modal, but stores its own two-round
+  // separation and declined-prompt snapshots per zone.
+  function maybeSuggestZonePairBreak(id,actives,capacity){
+    if(pairPromptPending || state.zoneTemporaryPairs?.[id]?.remaining>0 || actives.length<=capacity)return false;
+    const pairs=makeUnits(actives).filter(u=>u.length===2);
+    const solos=actives.filter(p=>!p.fixedPartnerId);
+    if(!pairs.length||!solos.length)return false;
+    const scores=solos.map(schedulingSit).sort((a,b)=>a-b);
+    const m=Math.floor(scores.length/2);
+    const median=scores.length%2?scores[m]:(scores[m-1]+scores[m])/2;
+    state.zonePairPromptDeclinedAt ||= {};
+    const history=state.zonePairPromptDeclinedAt[id] ||= {};
+    const due=pairs.find(u=>{
+      if(!u.every(p=>schedulingSit(p)<median-0.00001))return false;
+      const key=u.map(p=>p.id).sort().join(':');
+      const previous=history[key];
+      if(previous){
+        const snapshot=previous.solos||{};
+        const incumbents=solos.filter(p=>Object.prototype.hasOwnProperty.call(snapshot,p.id));
+        if(incumbents.length && !incumbents.every(p=>schedulingSit(p)>snapshot[p.id]+0.00001))return false;
+        if(!incumbents.length && median<=previous.median+0.00001)return false;
+      }
+      return true;
+    });
+    if(!due)return false;
+    const [a,b]=due,key=due.map(p=>p.id).sort().join(':');
+    pairPromptPending=true;
+    $('pairFairnessDescription').textContent=`${a.name} and ${b.name} are due for a break in this zone. To keep sit-outs fair, would you like to temporarily separate them for the next two games?`;
+    $('pairFairnessModal').hidden=false;
+    const finish=approved=>{
+      $('pairFairnessModal').hidden=true;
+      pairPromptPending=false;
+      history[key]={median,solos:Object.fromEntries(solos.map(p=>[p.id,schedulingSit(p)]))};
+      if(approved){
+        state.zoneTemporaryPairs ||= {};
+        state.zoneTemporaryPairs[id]={ids:[a.id,b.id],remaining:2};
+      }
+      save();zoneAdvance(id,true);
+    };
+    $('pairFairnessYes').onclick=()=>finish(true);
+    $('pairFairnessNo').onclick=()=>finish(false);
+    $('pairFairnessYes').focus();
+    return true;
+  }
+  function zoneAdvance(id,skipPairPrompt=false){
     if(!isZoned())return;
     if(!requireSkills('Zoned Play'))return;
     const courtNumbers=state.zoneCourts.map((v,i)=>v===id?i+1:null).filter(Boolean);
@@ -1959,15 +2009,32 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
     const eligible=players.filter(p=>!p.sitNext);
     const fullCourts=Math.min(courtNumbers.length,Math.floor(eligible.length/4));
     if(!fullCourts)return ncAlert('This zone needs at least four available players.');
+    const capacity=fullCourts*4;
+    if(!skipPairPrompt && maybeSuggestZonePairBreak(id,eligible,capacity))return;
+    let forcedSitter=null;
+    const temp=state.zoneTemporaryPairs?.[id];
+    if(temp?.remaining>0){
+      forcedSitter=eligible.find(p=>p.id===temp.ids[2-temp.remaining])||null;
+      // A temporary separation is deferred if there are no spare players.
+      if(eligible.length<=capacity)forcedSitter=null;
+    }
+    const schedulable=forcedSitter?eligible.filter(p=>p.id!==forcedSitter.id):eligible;
     // Fixed teams must be scheduled together; if capacity is incompatible, do not change any data.
-    for(const p of eligible){if(p.fixedPartnerId&&!eligible.some(q=>q.id===p.fixedPartnerId))return ncAlert('A fixed partner is unavailable or in another zone. Unpair or correct the players before rotating.');}
-    const selected=chooseParticipants(eligible,fullCourts*4,state.mode);
-    if(selected.playing.length!==fullCourts*4)return ncAlert('Cannot fill courts while keeping fixed pairs together. Adjust courts or pairings.');
+    for(const p of schedulable){if(p.fixedPartnerId&&!schedulable.some(q=>q.id===p.fixedPartnerId) && effectivePartnerId(p))return ncAlert('A fixed partner is unavailable or in another zone. Unpair or correct the players before rotating.');}
+    const protectedIds=forcedSitter?new Set(temp.ids.filter(pid=>pid!==forcedSitter.id)):null;
+    const selected=chooseParticipants(schedulable,capacity,state.mode,protectedIds);
+    if(selected.playing.length!==capacity)return ncAlert('Cannot fill courts while keeping fixed pairs together. Adjust courts or pairings.');
+    if(protectedIds && selected.waiting.some(p=>protectedIds.has(p.id)))return ncAlert('Cannot give partners separate sit-outs with the current court and pairing configuration.');
     let courts;
     try{courts=state.mode==='similar'?buildSimilar(selected.playing):state.mode==='balanced'?buildBalanced(selected.playing):buildSmart(selected.playing)}catch(e){ncAlert('Unable to create a valid rotation: '+e.message);return}
     if(courts.length!==fullCourts||courts.some(c=>c.length!==2||c.some(t=>t.length!==2)))return ncAlert('Unable to create valid teams.');
     if(zr.currentRound){const original=state.currentRound;state.currentRound=zr.currentRound;finalizeAdaptiveResults();state.currentRound=original;}
     zr.round++;
+    if(forcedSitter){
+      selected.waiting.push(forcedSitter);
+      temp.remaining--;
+      if(temp.remaining===0)delete state.zoneTemporaryPairs[id];
+    }
     for(const p of sitters){p.sitNext=false;p.sat++;p.lastSatRound=zr.round;p.playStreak=0}
     for(const p of selected.waiting){p.sat++;p.lastSatRound=zr.round;p.playStreak=0}
     for(const [[a,b],[c,d]] of courts){for(const p of [a,b,c,d]){p.played++;p.firstGamePriority=false;p.playStreak=(p.playStreak||0)+1}incrementMap(a.partners,b.id);incrementMap(b.partners,a.id);incrementMap(c.partners,d.id);incrementMap(d.partners,c.id);for(const x of [a,b])for(const y of [c,d]){incrementMap(x.opponents,y.id);incrementMap(y.opponents,x.id)}}
