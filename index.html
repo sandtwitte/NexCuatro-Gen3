@@ -769,11 +769,11 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
         <p><span aria-hidden="true">🏆</span> <strong>Tournament Play:</strong> Planned multi-game tournaments spanning one or more sessions, with standings and cumulative results.</p>
         <p class="future-note"><em>Planned features — not yet available in Generation 3.</em></p>
       </div>
-      <p class="feature-version">NextCuatro · Generation 3 · G3.2.19</p>
+      <p class="feature-version">NextCuatro · Generation 3 · G3.2.20</p>
     </div>
   </details>
 </section>
-<div class="footer">© 2026 T. Witte · NextCuatro · All rights reserved. · <a href="mailto:support@nextcuatro.com">support@nextcuatro.com</a> · G3.2.19</div>
+<div class="footer">© 2026 T. Witte · NextCuatro · All rights reserved. · <a href="mailto:support@nextcuatro.com">support@nextcuatro.com</a> · G3.2.20</div>
 
 <div id="pairFairnessModal" class="nc-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pairFairnessTitle">
   <div class="nc-modal">
@@ -797,7 +797,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
 #nc-message-actions button{padding:10px 20px;border-radius:8px;border:1px solid #b9c8cd;font:inherit;cursor:pointer}
 #nc-message-ok{background:#176d5c;color:white}
 
-/* G3.2.19 — header hierarchy and space utilization; presentation only. */
+/* G3.2.20 — header hierarchy and space utilization; presentation only. */
 @media(min-width:901px){
   .topbar{display:grid;grid-template-columns:minmax(310px,auto) minmax(300px,1fr) auto;gap:16px;align-items:center;flex-wrap:nowrap}
   .topbar .brand{width:auto;gap:12px}
@@ -823,7 +823,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
   .topbar .g32-pitch-line{font-size:13px;line-height:1.35}
 }
 
-/* G3.2.19 — high-contrast warm gold messaging and clearly destructive reset button. */
+/* G3.2.20 — high-contrast warm gold messaging and clearly destructive reset button. */
 .topbar .g32-pitch-title{color:#ffe08a}
 .topbar .g32-pitch-line,.topbar .g32-pitch-line strong{color:#ffe8aa}
 .topbar #resetBtn.secondary{
@@ -835,7 +835,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
 .topbar #resetBtn.secondary:hover{background:#921b25;border-color:#ffd1d5}
 .topbar #resetBtn.secondary:focus-visible{outline:3px solid #ffe08a;outline-offset:3px}
 
-/* G3.2.19 — visual-only roster action affordances; no scheduler changes. */
+/* G3.2.20 — visual-only roster action affordances; no scheduler changes. */
 .player-row .status-menu button[data-action="sit"],
 .player-row .status-menu button[data-action="left"]{
   opacity:1!important; cursor:pointer; font-weight:700;
@@ -1179,7 +1179,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
     return p.fixedPartnerId;
   }
 
-  // G3.2.19: one invitation per complete sit-out opportunity cycle.
+  // G3.2.20: one invitation per complete sit-out opportunity cycle.
   // A refusal credits each member once; actual sit-outs are never falsified.
   // Each fixed pair is its own fairness unit, so multiple pairs are supported.
   let pairPromptPending=false;
@@ -1912,7 +1912,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
       if(isZoned())tr.style.background=zoneTint(zid);
       tr.innerHTML=`
         <td>${escapeHtml(p.name??'')}</td>
-        <td>${statusLabel(p.status||'active')}</td>
+        <td>${p.status==='active' && p.fixedPartnerId && state.players.some(q=>q.id===p.fixedPartnerId && q.fixedPartnerId===p.id && q.status==='active') ? 'Active-Paired' : statusLabel(p.status||'active')}</td>
         <td>${Number(p.played)||0}</td>
         <td>${Number(p.sat)||0}</td>
         <td>${Number(p.declines)||0}</td>
