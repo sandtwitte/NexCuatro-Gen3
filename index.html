@@ -769,11 +769,11 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
         <p><span aria-hidden="true">🏆</span> <strong>Tournament Play:</strong> Planned multi-game tournaments spanning one or more sessions, with standings and cumulative results.</p>
         <p class="future-note"><em>Planned features — not yet available in Generation 3.</em></p>
       </div>
-      <p class="feature-version">NextCuatro · Generation 3 · G3.2.20</p>
+      <p class="feature-version">NextCuatro · Generation 3 · G3.3.1</p>
     </div>
   </details>
 </section>
-<div class="footer">© 2026 T. Witte · NextCuatro · All rights reserved. · <a href="mailto:support@nextcuatro.com">support@nextcuatro.com</a> · G3.2.20</div>
+<div class="footer">© 2026 T. Witte · NextCuatro · All rights reserved. · <a href="mailto:support@nextcuatro.com">support@nextcuatro.com</a> · G3.3.1</div>
 
 <div id="pairFairnessModal" class="nc-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pairFairnessTitle">
   <div class="nc-modal">
@@ -797,7 +797,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
 #nc-message-actions button{padding:10px 20px;border-radius:8px;border:1px solid #b9c8cd;font:inherit;cursor:pointer}
 #nc-message-ok{background:#176d5c;color:white}
 
-/* G3.2.20 — header hierarchy and space utilization; presentation only. */
+/* G3.3 — header hierarchy and space utilization; presentation only. */
 @media(min-width:901px){
   .topbar{display:grid;grid-template-columns:minmax(310px,auto) minmax(300px,1fr) auto;gap:16px;align-items:center;flex-wrap:nowrap}
   .topbar .brand{width:auto;gap:12px}
@@ -823,7 +823,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
   .topbar .g32-pitch-line{font-size:13px;line-height:1.35}
 }
 
-/* G3.2.20 — high-contrast warm gold messaging and clearly destructive reset button. */
+/* G3.3 — high-contrast warm gold messaging and clearly destructive reset button. */
 .topbar .g32-pitch-title{color:#ffe08a}
 .topbar .g32-pitch-line,.topbar .g32-pitch-line strong{color:#ffe8aa}
 .topbar #resetBtn.secondary{
@@ -835,7 +835,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
 .topbar #resetBtn.secondary:hover{background:#921b25;border-color:#ffd1d5}
 .topbar #resetBtn.secondary:focus-visible{outline:3px solid #ffe08a;outline-offset:3px}
 
-/* G3.2.20 — visual-only roster action affordances; no scheduler changes. */
+/* G3.3 — visual-only roster action affordances; no scheduler changes. */
 .player-row .status-menu button[data-action="sit"],
 .player-row .status-menu button[data-action="left"]{
   opacity:1!important; cursor:pointer; font-weight:700;
@@ -1179,7 +1179,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
     return p.fixedPartnerId;
   }
 
-  // G3.2.20: one invitation per complete sit-out opportunity cycle.
+  // G3.3: one invitation per complete sit-out opportunity cycle.
   // A refusal credits each member once; actual sit-outs are never falsified.
   // Each fixed pair is its own fairness unit, so multiple pairs are supported.
   let pairPromptPending=false;
@@ -1187,25 +1187,57 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
   // next opportunity only when its credited opportunities are at the floor
   // of the rotation. When there are insufficient solo sitters, an invitation
   // can be brought forward rather than benching an unconsenting pair.
+  // G3.3: never invite a fixed pair to separate when its entire team can
+  // receive the sit-out together in a valid intact-unit rotation.
+  function canSitIntactWithPair(units, pair, need){
+    if(need<pair.length)return false;
+    let reachable=new Set([0]);
+    for(const u of units){
+      if(u===pair)continue;
+      const next=new Set(reachable);
+      for(const n of reachable)if(n+u.length<=need-pair.length)next.add(n+u.length);
+      reachable=next;
+    }
+    return reachable.has(need-pair.length);
+  }
+  // Declining a separation grants a fairness opportunity, but does not
+  // authorize an invitation every subsequent round. Re-arm only once all
+  // other eligible intact units have progressed through another opportunity
+  // (or the original roster has changed). This is persisted per zone.
+  function declineCycleKey(zoneId){return zoneId==null?'open':String(zoneId);}
+  function recordPairDeclineCycle(actives,pair,zoneId){
+    state.pairDeclineCycles||={};
+    const others=makeUnits(actives).filter(u=>!u.some(p=>pair.some(q=>q.id===p.id)));
+    const minOther=others.length?Math.min(...others.map(u=>Math.min(...u.map(schedulingSit)))):Infinity;
+    const ids=actives.map(p=>p.id).sort().join('|');
+    const key=declineCycleKey(zoneId)+':'+pair.map(p=>p.id).sort().join('|');
+    state.pairDeclineCycles[key]={minOther,ids};
+  }
+  function pairDeclineCycleBlocked(actives,pair,zoneId){
+    const key=declineCycleKey(zoneId)+':'+pair.map(p=>p.id).sort().join('|');
+    const entry=state.pairDeclineCycles?.[key];
+    if(!entry)return false;
+    if(entry.ids!==actives.map(p=>p.id).sort().join('|'))return false;
+    const others=makeUnits(actives).filter(u=>!u.some(p=>pair.some(q=>q.id===p.id)));
+    if(!others.length)return true;
+    return Math.min(...others.map(u=>Math.min(...u.map(schedulingSit))))<=entry.minOther+0.000001;
+  }
   function pairDue(actives,capacity,zoneId=null){
     if(actives.length<=capacity)return null;
-    const units=makeUnits(actives), pairs=units.filter(u=>u.length===2);
+    const units=makeUnits(actives),pairs=units.filter(u=>u.length===2);
     if(!pairs.length)return null;
     const credit=u=>Math.min(...u.map(schedulingSit));
     const need=actives.length-capacity;
-    const soloCount=units.filter(u=>u.length===1).length;
-    // A whole pair may sit together; splitting is considered only when an
-    // odd sit-out requirement makes single-player sit-outs necessary.
-    if(need%2===0)return null;
-    const mustAsk=soloCount<need%2;
     const floor=Math.min(...units.map(credit));
     const candidates=pairs.filter(u=>{
       const c=credit(u);
-      // Once a pair declines, its score rises; do not invite again while
-      // any other unit has a lower score.
       if(c>floor+0.000001)return false;
-      if(mustAsk)return true;
-      // Prefer solo players' first opportunity before offering the pair.
+      if(pairDeclineCycleBlocked(actives,u,zoneId))return false;
+      // The whole pair can sit out in this round: do not ask them to split.
+      if(canSitIntactWithPair(units,u,need))return false;
+      // When an intact pair cannot fit in the sit-out slots, offer the
+      // existing two-round voluntary separation only after solo players
+      // have received the corresponding opportunity.
       return units.filter(v=>v.length===1).every(v=>credit(v)>=c+0.999999);
     });
     candidates.sort((a,b)=>credit(a)-credit(b));
@@ -1222,7 +1254,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
     const finish=approved=>{
       $('pairFairnessModal').hidden=true;pairPromptPending=false;
       if(approved)state.temporaryPair={ids:[a.id,b.id],remaining:2};
-      else {a.declines=(a.declines||0)+1;b.declines=(b.declines||0)+1;state.pairDeclineProtection=[a.id,b.id];}
+      else {a.declines=(a.declines||0)+1;b.declines=(b.declines||0)+1;state.pairDeclineProtection=[a.id,b.id];recordPairDeclineCycle(actives,[a,b],null);}
       save();makeRound(true);
     };
     $('pairFairnessYes').onclick=()=>finish(true);
@@ -2005,7 +2037,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
     const finish=approved=>{
       $('pairFairnessModal').hidden=true;pairPromptPending=false;
       if(approved){state.zoneTemporaryPairs||={};state.zoneTemporaryPairs[id]={ids:[a.id,b.id],remaining:2};}
-      else {a.declines=(a.declines||0)+1;b.declines=(b.declines||0)+1;state.zoneDeclineProtection||={};state.zoneDeclineProtection[id]=[a.id,b.id];}
+      else {a.declines=(a.declines||0)+1;b.declines=(b.declines||0)+1;state.zoneDeclineProtection||={};state.zoneDeclineProtection[id]=[a.id,b.id];recordPairDeclineCycle(actives,[a,b],id);}
       save();zoneAdvance(id,true);
     };
     $('pairFairnessYes').onclick=()=>finish(true);
