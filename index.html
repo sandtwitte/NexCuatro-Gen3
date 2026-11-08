@@ -384,6 +384,10 @@ input,select,button{max-width:100%}
   .features-content ul{margin:0 0 8px;padding-left:22px}
   .features-content li{margin:3px 0}
   .features-content .feature-version{font-size:12px;color:#566777}
+  .features-content .future-features{margin:18px 0 12px;padding:12px 16px;background:#fff7e4;border:2px solid #c69a3a;border-radius:12px}
+  .features-content .future-features h3{margin:0 0 8px;color:#765018;font-size:15px}
+  .features-content .future-features p{margin:7px 0}
+  .features-content .future-features .future-note{color:#765018;font-size:12px;margin-top:10px}
 
   .nc-modal-backdrop[hidden]{display:none!important}
   .nc-modal-backdrop{position:fixed;inset:0;z-index:99999;background:rgba(10,25,45,.65);display:flex;align-items:center;justify-content:center;padding:20px}
@@ -537,7 +541,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
         <div class="subtle">Smart. Fair. Dynamic.</div>
       </div>
     </div>
-    <div class="g32-pitch" aria-label="NextCuatro benefits"><div class="g32-pitch-title">Multiple ways to play.</div><div class="g32-pitch-line"><strong>Play solo or paired</strong> (practice with your tournament partner) · Arrive, sit out, or leave when you need to.</div></div>
+    <div class="g32-pitch" aria-label="NextCuatro benefits"><div class="g32-pitch-title">Multiple ways to play together.</div><div class="g32-pitch-line"><strong>Play solo or paired</strong> (practice with your tournament partner) · Arrive, sit out, or leave when you need to.</div></div>
     <div class="toolbar">
       <button class="secondary" id="resetBtn">New Session / Clear Everything</button>
       
@@ -715,7 +719,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
       <h3>Getting Started</h3>
       <p><strong>Smart. Fair. Dynamic.</strong> NextCuatro organizes flexible pickleball rotations as players and courts change. Choose <strong>Open Play</strong> or <strong>Zoned Play</strong>, add players, select available courts, then click <strong>Next Cuatro!</strong> to generate the next round.</p>
 
-      <h3>1. Open Play — Social Mixing</h3>
+      <h3>1. Open Play — Mixer Style</h3>
       <p>Drop in, play solo or with a fixed partner, take a break, and leave when needed. NextCuatro balances playing opportunities while creating varied games.</p>
       <p><strong>Choose a rotation style:</strong></p>
       <ul>
@@ -759,15 +763,17 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
       <p><strong>Timed Games:</strong> Reveal the timer to choose 10, 12, or 15 minutes, then start, pause, or reset it. An alert signals when time expires. <strong>Next Cuatro!</strong> generates the next round and resets—but does not automatically restart—the timer.</p>
       <p><strong>Session saving:</strong> Session data is stored in this browser on this device. Clearing browser data may erase it. <strong>New Session / Clear Everything</strong> asks for confirmation.</p>
 
-      <h3>Coming to NextCuatro — Future Developments</h3>
-      <p><strong>Royal Play:</strong> Planned King and Queen formats for men's, women's, and mixed doubles mixers, with recorded results and session winners.</p>
-      <p><strong>Tournament Play:</strong> Planned multi-game tournaments spanning one or more sessions, with standings and cumulative results.</p>
-      <p><em>Royal and Tournament Play are not yet available in Generation 3.</em></p>
-      <p class="feature-version">NextCuatro · Generation 3 · G3.2.11</p>
+      <div class="future-features" aria-label="Planned future features">
+        <h3>Coming to NextCuatro — Future Developments</h3>
+        <p><span aria-hidden="true">♛</span> <strong>Royal Play:</strong> Planned King and Queen formats for men's, women's, and mixed doubles mixers, with recorded results and session winners.</p>
+        <p><span aria-hidden="true">🏆</span> <strong>Tournament Play:</strong> Planned multi-game tournaments spanning one or more sessions, with standings and cumulative results.</p>
+        <p class="future-note"><em>Planned features — not yet available in Generation 3.</em></p>
+      </div>
+      <p class="feature-version">NextCuatro · Generation 3 · G3.2.12</p>
     </div>
   </details>
 </section>
-<div class="footer">© 2026 T. Witte · NextCuatro · All rights reserved. · <a href="mailto:support@nextcuatro.com">support@nextcuatro.com</a> · G3.2.11</div>
+<div class="footer">© 2026 T. Witte · NextCuatro · All rights reserved. · <a href="mailto:support@nextcuatro.com">support@nextcuatro.com</a> · G3.2.12</div>
 
 <div id="pairFairnessModal" class="nc-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pairFairnessTitle">
   <div class="nc-modal">
@@ -791,7 +797,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
 #nc-message-actions button{padding:10px 20px;border-radius:8px;border:1px solid #b9c8cd;font:inherit;cursor:pointer}
 #nc-message-ok{background:#176d5c;color:white}
 
-/* G3.2.11 — header hierarchy and space utilization; presentation only. */
+/* G3.2.12 — header hierarchy and space utilization; presentation only. */
 @media(min-width:901px){
   .topbar{display:grid;grid-template-columns:minmax(310px,auto) minmax(300px,1fr) auto;gap:16px;align-items:center;flex-wrap:nowrap}
   .topbar .brand{width:auto;gap:12px}
@@ -817,7 +823,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
   .topbar .g32-pitch-line{font-size:13px;line-height:1.35}
 }
 
-/* G3.2.11 — high-contrast warm gold messaging and clearly destructive reset button. */
+/* G3.2.12 — high-contrast warm gold messaging and clearly destructive reset button. */
 .topbar .g32-pitch-title{color:#ffe08a}
 .topbar .g32-pitch-line,.topbar .g32-pitch-line strong{color:#ffe8aa}
 .topbar #resetBtn.secondary{
@@ -837,12 +843,12 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
 (()=>{
  const dialog=document.getElementById('nc-message-dialog'),message=document.getElementById('nc-message-text'),ok=document.getElementById('nc-message-ok'),cancel=document.getElementById('nc-message-cancel');
  const queue=[];let active=null;
- function show(){if(active||!queue.length)return;active=queue.shift();active.focus=document.activeElement;message.textContent=active.message;cancel.hidden=!active.confirmation;dialog.showModal();(active.confirmation?cancel:ok).focus();}
+ function show(){if(active||!queue.length)return;active=queue.shift();active.focus=document.activeElement;message.textContent=active.message;document.getElementById('nc-message-title').textContent=active.title||'NextCuatro';ok.textContent=active.okLabel||'OK';cancel.hidden=!active.confirmation;dialog.showModal();(active.confirmation?cancel:ok).focus();}
  function finish(value){if(!active)return;const item=active;active=null;dialog.close();if(item.focus?.isConnected)item.focus.focus();item.resolve(value);show();}
  ok.addEventListener('click',()=>finish(true));cancel.addEventListener('click',()=>finish(false));
  dialog.addEventListener('cancel',e=>{e.preventDefault();finish(false)});
- function ask(message,confirmation){return new Promise(resolve=>{queue.push({message:String(message),confirmation,resolve});show()})}
- window.ncAlert=message=>ask(message,false);window.ncConfirm=message=>ask(message,true);
+ function ask(message,confirmation,options={}){return new Promise(resolve=>{queue.push({message:String(message),confirmation,title:options.title,okLabel:options.okLabel,resolve});show()})}
+ window.ncAlert=message=>ask(message,false);window.ncConfirm=(message,options)=>ask(message,true,options);
 })();
 </script>
 <script>
@@ -1765,7 +1771,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
         p.useAdaptive=p.useAdaptive!==true;save();render();
       };
       row.querySelector('[data-action="left"]').onclick=async ()=>{
-        if(await ncConfirm(`Leave NextCuatro?\n\nRemove ${p.name} from future games in both modes? Their session statistics will be saved if they return using Restore.\n\nChoose Cancel to stay in the session.`)) setStatus(p.id,'left');
+        if(await ncConfirm('Remove from future games? Stats are saved if restored.',{title:`Remove ${p.name}?`,okLabel:'Remove Player'})) setStatus(p.id,'left');
       };
       list.appendChild(row);
     }
