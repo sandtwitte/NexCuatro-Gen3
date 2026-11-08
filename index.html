@@ -769,11 +769,11 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
         <p><span aria-hidden="true">🏆</span> <strong>Tournament Play:</strong> Planned multi-game tournaments spanning one or more sessions, with standings and cumulative results.</p>
         <p class="future-note"><em>Planned features — not yet available in Generation 3.</em></p>
       </div>
-      <p class="feature-version">NextCuatro · Generation 3 · G3.2.17</p>
+      <p class="feature-version">NextCuatro · Generation 3 · G3.2.18</p>
     </div>
   </details>
 </section>
-<div class="footer">© 2026 T. Witte · NextCuatro · All rights reserved. · <a href="mailto:support@nextcuatro.com">support@nextcuatro.com</a> · G3.2.17</div>
+<div class="footer">© 2026 T. Witte · NextCuatro · All rights reserved. · <a href="mailto:support@nextcuatro.com">support@nextcuatro.com</a> · G3.2.18</div>
 
 <div id="pairFairnessModal" class="nc-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pairFairnessTitle">
   <div class="nc-modal">
@@ -797,7 +797,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
 #nc-message-actions button{padding:10px 20px;border-radius:8px;border:1px solid #b9c8cd;font:inherit;cursor:pointer}
 #nc-message-ok{background:#176d5c;color:white}
 
-/* G3.2.17 — header hierarchy and space utilization; presentation only. */
+/* G3.2.18 — header hierarchy and space utilization; presentation only. */
 @media(min-width:901px){
   .topbar{display:grid;grid-template-columns:minmax(310px,auto) minmax(300px,1fr) auto;gap:16px;align-items:center;flex-wrap:nowrap}
   .topbar .brand{width:auto;gap:12px}
@@ -823,7 +823,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
   .topbar .g32-pitch-line{font-size:13px;line-height:1.35}
 }
 
-/* G3.2.17 — high-contrast warm gold messaging and clearly destructive reset button. */
+/* G3.2.18 — high-contrast warm gold messaging and clearly destructive reset button. */
 .topbar .g32-pitch-title{color:#ffe08a}
 .topbar .g32-pitch-line,.topbar .g32-pitch-line strong{color:#ffe8aa}
 .topbar #resetBtn.secondary{
@@ -1154,7 +1154,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
     return p.fixedPartnerId;
   }
 
-  // G3.2.17: one invitation per complete sit-out opportunity cycle.
+  // G3.2.18: one invitation per complete sit-out opportunity cycle.
   // A refusal credits each member once; actual sit-outs are never falsified.
   // Each fixed pair is its own fairness unit, so multiple pairs are supported.
   let pairPromptPending=false;
@@ -1169,7 +1169,10 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
     const credit=u=>Math.min(...u.map(schedulingSit));
     const need=actives.length-capacity;
     const soloCount=units.filter(u=>u.length===1).length;
-    const mustAsk=soloCount<need;
+    // A whole pair may sit together; splitting is considered only when an
+    // odd sit-out requirement makes single-player sit-outs necessary.
+    if(need%2===0)return null;
+    const mustAsk=soloCount<need%2;
     const floor=Math.min(...units.map(credit));
     const candidates=pairs.filter(u=>{
       const c=credit(u);
@@ -1206,12 +1209,10 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
   // Protect declined pairs through the current opportunity cycle. When the
   // remaining units catch up, the pair may be invited again in the next cycle.
   function declinedPairProtected(actives){
-    // No fixed pair may be involuntarily benched. Only a confirmed two-round
-    // separation can place one partner on the waiting list.
-    const ids=new Set();
-    for(const unit of makeUnits(actives))if(unit.length===2)
-      for(const p of unit)ids.add(p.id);
-    return ids;
+    // An intact pair is one indivisible scheduling unit, not an untouchable
+    // unit. Both partners may sit together, receiving one actual sit-out each.
+    // The chooser uses makeUnits to enforce that invariant.
+    return new Set();
   }
   function makeUnits(players){
     const ids=new Set(players.map(p=>p.id)), used=new Set(), units=[];
