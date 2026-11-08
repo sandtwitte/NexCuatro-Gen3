@@ -769,11 +769,11 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
         <p><span aria-hidden="true">🏆</span> <strong>Tournament Play:</strong> Planned multi-game tournaments spanning one or more sessions, with standings and cumulative results.</p>
         <p class="future-note"><em>Planned features — not yet available in Generation 3.</em></p>
       </div>
-      <p class="feature-version">NextCuatro · Generation 3 · G3.2.12</p>
+      <p class="feature-version">NextCuatro · Generation 3 · G3.2.13</p>
     </div>
   </details>
 </section>
-<div class="footer">© 2026 T. Witte · NextCuatro · All rights reserved. · <a href="mailto:support@nextcuatro.com">support@nextcuatro.com</a> · G3.2.12</div>
+<div class="footer">© 2026 T. Witte · NextCuatro · All rights reserved. · <a href="mailto:support@nextcuatro.com">support@nextcuatro.com</a> · G3.2.13</div>
 
 <div id="pairFairnessModal" class="nc-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pairFairnessTitle">
   <div class="nc-modal">
@@ -797,7 +797,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
 #nc-message-actions button{padding:10px 20px;border-radius:8px;border:1px solid #b9c8cd;font:inherit;cursor:pointer}
 #nc-message-ok{background:#176d5c;color:white}
 
-/* G3.2.12 — header hierarchy and space utilization; presentation only. */
+/* G3.2.13 — header hierarchy and space utilization; presentation only. */
 @media(min-width:901px){
   .topbar{display:grid;grid-template-columns:minmax(310px,auto) minmax(300px,1fr) auto;gap:16px;align-items:center;flex-wrap:nowrap}
   .topbar .brand{width:auto;gap:12px}
@@ -823,7 +823,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
   .topbar .g32-pitch-line{font-size:13px;line-height:1.35}
 }
 
-/* G3.2.12 — high-contrast warm gold messaging and clearly destructive reset button. */
+/* G3.2.13 — high-contrast warm gold messaging and clearly destructive reset button. */
 .topbar .g32-pitch-title{color:#ffe08a}
 .topbar .g32-pitch-line,.topbar .g32-pitch-line strong{color:#ffe8aa}
 .topbar #resetBtn.secondary{
@@ -1846,6 +1846,11 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
   function renderStats(){
     const body=$('statsBody'); body.innerHTML='';
     const ordered=[...state.players].sort((a,b)=>{
+      // Display-only grouping: players who left appear after active/sitting-out players.
+      // Preserve the existing zone and name ordering within each status group.
+      const leftA=a.status==='left'?1:0;
+      const leftB=b.status==='left'?1:0;
+      if(leftA!==leftB)return leftA-leftB;
       const za=isZoned()?(currentZone(a)?ZONES.findIndex(z=>z.id===currentZone(a)):99):0;
       const zb=isZoned()?(currentZone(b)?ZONES.findIndex(z=>z.id===currentZone(b)):99):0;
       return za-zb||String(a.name??'').localeCompare(String(b.name??''),undefined,{sensitivity:'base'});
