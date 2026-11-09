@@ -719,6 +719,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:12px"><label><input type="radio" name="nc-audit-view" value="rounds" checked> Round-by-round</label><label><input type="radio" name="nc-audit-view" value="players"> By player</label><select id="nc-audit-player" aria-label="Choose player" hidden></select></div>
  <div id="nc-audit-output" aria-live="polite">No rounds recorded yet.</div>
  <button type="button" id="nc-audit-copy" class="secondary" style="margin-top:12px">Copy audit text</button>
+ <span id="nc-audit-copy-status" role="status" aria-live="polite" style="display:inline-block;margin-left:10px;font-weight:600"></span>
  </details>
 </section>
 
@@ -783,7 +784,7 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
     </div>
   </details>
 </section>
-<div class="footer">© 2026 T. Witte · NextCuatro · All rights reserved. · <a href="mailto:support@nextcuatro.com">support@nextcuatro.com</a> · G3.3.1</div>
+<div class="footer">© 2026 T. Witte · NextCuatro · All rights reserved. · <a href="mailto:support@nextcuatro.com">support@nextcuatro.com</a> · G3.3.2</div>
 
 <div id="pairFairnessModal" class="nc-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pairFairnessTitle">
   <div class="nc-modal">
@@ -949,7 +950,19 @@ body.g3-royal-active .g2-controls,body.g3-royal-active .app > .grid{display:none
  function clear(){history=[];try{localStorage.removeItem(KEY)}catch(e){}render();}
  function asText(){if(view()==='players'){const i=textForPlayer(select.value);return i.summary+'\n'+i.rows.join('\n');}return history.map(r=>`${r.label}\n${r.courts.map((c,i)=>`Court ${r.courtNumbers[i]??i+1}: ${c.map(t=>t.map(id=>name(id,r)).join(' + ')).join(' vs. ')}`).join('\n')}\nSat out: ${r.waiting.map(id=>name(id,r)).join(', ')||'None'}`).join('\n\n');}
  root?.addEventListener('toggle',render);document.querySelectorAll('input[name="nc-audit-view"]').forEach(x=>x.addEventListener('change',render));select?.addEventListener('change',render);
- document.getElementById('nc-audit-copy')?.addEventListener('click',async()=>{const txt=asText();try{await navigator.clipboard.writeText(txt)}catch(e){const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();}});
+ document.getElementById('nc-audit-copy')?.addEventListener('click',async(event)=>{
+  const button=event.currentTarget,status=document.getElementById('nc-audit-copy-status'),txt=asText();
+  button.disabled=true;button.textContent='Copying…';status.textContent='';
+  try{
+   if(!txt.trim()){button.textContent='Copy audit text';status.textContent='No audit text to copy yet.';return;}
+   try{await navigator.clipboard.writeText(txt)}catch(e){
+    const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;left:-9999px;top:0';document.body.appendChild(ta);
+    try{ta.select();if(!document.execCommand('copy'))throw new Error('Copy failed');}finally{ta.remove();button.focus();}
+   }
+   button.textContent='Copied!';status.textContent='Audit text copied to clipboard.';
+  }catch(e){button.textContent='Copy audit text';status.textContent='Could not copy. Please try again.';}
+  finally{button.disabled=false;}
+ });
  window.NextCuatroAudit=Object.freeze({record,clear});
 })();
 </script>
